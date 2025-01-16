@@ -1,5 +1,8 @@
 # nlp-flexi-tools
 
+[![Python Versions](https://img.shields.io/badge/Python%20Versions-%3E%3D3.9-informational)](https://pypi.org/project/nlp-flexi-tools/)
+[![Version](https://img.shields.io/badge/Version-0.1.0-informational)](https://pypi.org/project/nlp-flexi-tools/)
+
 A natural language processing toolkit based on the flexi-dict data structure, designed for efficient fuzzy search, with a focus on simplicity, performance, and flexibility.
 
 ## Table of Contents
@@ -29,6 +32,8 @@ The Numeral Converter allows you to:
 Converts a numeral text into its integer representation.
 
 ```python
+from numeral_converter import numeral2int
+
 numeral2int("two thousand and twenty-five", lang='en')
 # Output: 2025
 ```
@@ -37,6 +42,8 @@ numeral2int("two thousand and twenty-five", lang='en')
 Converts an integer into a textual numeral based on the specified parameters.
 
 ```python
+from numeral_converter import int2numeral
+
 int2numeral(
     2025,
     lang='uk',
@@ -51,6 +58,8 @@ int2numeral(
 Finds and converts numerical words in a given text to their numeric representations.
 
 ```python
+from numeral_converter import convert_numerical_in_text
+
 convert_numerical_in_text(
     "After twenty, numbers such as twenty-five, fifty, seventy-five, and one hundred follow.",
     lang="en"
@@ -62,6 +71,7 @@ convert_numerical_in_text(
 Returns the list of supported languages for numeral conversion.
 
 ```python
+from numeral_converter import get_available_languages
 get_available_languages()
 # Output: ['uk', 'en', 'ru']
 ```
@@ -74,22 +84,11 @@ get_available_languages()
 
 ## Installation
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/nlp-flexi-tools.git
-   ```
+You can easily install `nlp-flexi-tools` from PyPI using `pip`:
 
-2. Navigate into the project directory:
-   ```bash
-   cd nlp-flexi-tools
-   ```
-
-3. Install the package using `pip`:
-   ```bash
-   pip install .
-   ```
-
-This will install the package locally for use in your Python projects.
+```bash
+pip install nlp-flexi-tools
+```
 
 ---
 
