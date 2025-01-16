@@ -78,9 +78,6 @@ get_available_languages()
 
 ---
 
-Конечно, вот обновленная версия блока **Installation**:
-
----
 
 ## Installation
 
