@@ -138,124 +138,71 @@ def _number_items2int(number_items: List[NumberItem]) -> int:
 
     return int(int_value)
 
-# def _int2number_items(number: int, lang: str) -> List[NumberItem]:
-#
-#     logger.debug(f'In _int2number_items:\n\tnumber: {number}\n\tlang: {lang}')
-#     if number == 0:
-#         return [
-#             NumberItem(0, -1, None),
-#         ]
-#
-#     number_items: List[NumberItem] = list()
-#     current_order, ones = 0, None  # type: int, Optional[int]
-#
-#     mem = None
-#
-#     while number:
-#         logger.debug(f'Step #{number}')
-#         digit = number % 10
-#         if current_order % 3 == 2 and digit:
-#
-#             if mem:
-#                 logger.debug(f'Step #{number}: detected order % 3 == 2, inserted from mem: {mem}')
-#                 number_items.insert(0, mem)
-#                 mem = None
-#             if lang == 'en':
-#                 number_items.insert(0, NumberItem(100, current_order % 3, None))
-#                 number_items.insert(0, NumberItem(digit, current_order % 3, None))
-#                 logger.debug(f'Step #{number}: detected order == 2, inserted {digit} and {100}')
-#             else:
-#                 number_items.insert(0, NumberItem(100 * digit, current_order % 3, None))
-#                 logger.debug(f'Step #{number}: detected order == 2, inserted {100 * digit}')
-#
-#         elif current_order % 3 == 0:
-#             logger.debug(f'Step #{number}: detected order % 3 == 0')
-#             ones = digit
-#             if current_order > 0:
-#                 mem = NumberItem(10**current_order, current_order, True)
-#         else:
-#             logger.debug(f'Step #{number}')
-#             if digit == 1 and ones > 0:
-#                 value = 10 * digit + ones
-#                 if value:
-#                     if mem:
-#                         number_items.insert(0, mem)
-#                         mem = None
-#                     number_items.insert(0, NumberItem(value, current_order % 3, None))
-#                     logger.debug(f'Step #{number}: inserted {value}')
-#             else:
-#                 if ones:
-#                     if mem:
-#                         number_items.insert(0, mem)
-#                         mem = None
-#                     number_items.insert(0, NumberItem(ones, 0, None))
-#                     logger.debug(f'Step #{number}: inserted {ones}')
-#
-#                 if digit:
-#                     if mem:
-#                         number_items.insert(0, mem)
-#                         mem = None
-#                     number_items.insert(
-#                         0, NumberItem(10 * digit, current_order % 3, None)
-#                     )
-#                     logger.debug(f'Step #{number}: inserted {10 * digit}')
-#
-#             ones = None
-#
-#         current_order += 1
-#         number = number // 10
-#
-#     if ones:
-#         if mem:
-#             number_items.insert(0, mem)
-#         number_items.insert(0, NumberItem(ones, 0, None))
-#
-#     if number_items[0].scale is not None:
-#         number_items.insert(0, NumberItem(1, 0, None))
-#
-#
-#     logger.debug(f'Result: {number_items}')
-#     return number_items[::-1]
-
 
 def _int2number_items(number: int, lang: str) -> List[NumberItem]:
+    """
+    Converts an integer into a list of NumberItem objects representing its components.
 
+    Args:
+        number (int): The integer to convert into number items.
+        lang (str): The language of the numeral system (e.g., 'en' for English).
+
+    Returns:
+        List[NumberItem]: A list of NumberItem objects representing the decomposed number.
+
+    Example:
+        >>> _int2number_items(123, 'en')
+        [NumberItem(value=1, order=2, scale=None),
+         NumberItem(value=100, order=2, scale=None),
+         NumberItem(value=23, order=0, scale=None)]
+
+    Raises:
+        None
+
+    Notes:
+        - Handles decomposition of numbers into units, tens, and hundreds.
+        - Supports specific language-dependent behavior (e.g., English).
+    """
     logger.debug(f'In _int2number_items:\n\tnumber: {number}\n\tlang: {lang}')
+
+    # Special case: if the number is zero, return a single NumberItem with a value of 0.
     if number == 0:
         return [
             NumberItem(0, -1, None),
         ]
 
-    number_items: List[NumberItem] = list()
-    current_order, ones = 0, None  # type: int, Optional[int]
-
-    mem = None
+    number_items: List[NumberItem] = []  # Result list to store NumberItem objects.
+    current_order, ones = 0, None  # `current_order` tracks the digit's position; `ones` stores the last "ones" digit.
+    mem = None  # Temporary storage for higher order scales.
 
     while number:
         logger.debug(f'Step #{number}')
-        digit = number % 10
-        if current_order % 3 == 2 and digit:
+        digit = number % 10  # Extract the last digit of the number.
 
+        if current_order % 3 == 2 and digit:  # Case for hundreds (order % 3 == 2).
             if mem:
+                # Insert any stored scale from the previous block.
                 logger.debug(f'Step #{number}: detected order % 3 == 2, inserted from mem: {mem}')
                 number_items.append(mem)
                 mem = None
-            if lang == 'en':
+            if lang == 'en':  # Language-specific handling for English.
                 number_items.append(NumberItem(100, current_order % 3, None))
                 number_items.append(NumberItem(digit, current_order % 3, None))
                 logger.debug(f'Step #{number}: detected order == 2, inserted {digit} and {100}')
-            else:
+            else:  # General handling for non-English languages.
                 number_items.append(NumberItem(100 * digit, current_order % 3, None))
                 logger.debug(f'Step #{number}: detected order == 2, inserted {100 * digit}')
 
-        elif current_order % 3 == 0:
+        elif current_order % 3 == 0:  # Case for units (order % 3 == 0).
             logger.debug(f'Step #{number}: detected order % 3 == 0')
-            ones = digit
+            ones = digit  # Store the current "ones" digit.
             if current_order > 0:
+                # Store the scale for this block.
                 mem = NumberItem(10**current_order, current_order, True)
-        else:
+
+        else:  # Case for tens (order % 3 == 1).
             logger.debug(f'Step #{number}')
-            if digit == 1 and ones > 0:
+            if digit == 1 and ones > 0:  # Handle teens (e.g., 11–19).
                 value = 10 * digit + ones
                 if value:
                     if mem:
@@ -263,7 +210,7 @@ def _int2number_items(number: int, lang: str) -> List[NumberItem]:
                         mem = None
                     number_items.append(NumberItem(value, current_order % 3, None))
                     logger.debug(f'Step #{number}: inserted {value}')
-            else:
+            else:  # Handle other tens or finalize stored "ones".
                 if ones:
                     if mem:
                         number_items.append(mem)
@@ -271,28 +218,30 @@ def _int2number_items(number: int, lang: str) -> List[NumberItem]:
                     number_items.append(NumberItem(ones, 0, None))
                     logger.debug(f'Step #{number}: inserted {ones}')
 
-                if digit:
+                if digit:  # Handle non-zero tens.
                     if mem:
                         number_items.append(mem)
                         mem = None
                     number_items.append(NumberItem(10 * digit, current_order % 3, None))
                     logger.debug(f'Step #{number}: inserted {10 * digit}')
 
-            ones = None
+            ones = None  # Reset "ones" for the next iteration.
 
-        current_order += 1
-        number = number // 10
+        current_order += 1  # Move to the next digit position.
+        number //= 10  # Remove the last digit from the number.
 
+    # Add the final "ones" digit if it exists.
     if ones:
         if mem:
             number_items.append(mem)
         number_items.append(NumberItem(ones, 0, None))
 
+    # Handle the case where the last number item has a non-None scale.
     if number_items[-1].scale is not None:
         number_items.append(NumberItem(1, 0, None))
 
     logger.debug(f'Result: {number_items}')
-    return number_items[::-1]
+    return number_items[::-1]  # Reverse the list to ensure correct order.
 
 
 def __int2numeral_word(
