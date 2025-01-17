@@ -243,7 +243,8 @@ def test_numeral2number_items_uk():
         "двісти тридцать чотири тисячі шістот п’ятнадцять", 
         lang="uk",
         numeral_data=numeral_data.numeral_data,
-        flexi_index=numeral_data.flexi_index
+        flexi_index=numeral_data.flexi_index,
+        multi_threaded=False
     )
     assert len(R) == 6
     assert R[0].value == 200
@@ -258,7 +259,8 @@ def test_numeral2number_items_uk():
         "сім тисяч сто тридцять чотири",
         lang="uk",
         numeral_data=numeral_data.numeral_data,
-        flexi_index=numeral_data.flexi_index
+        flexi_index=numeral_data.flexi_index,
+        multi_threaded=False
     )
     assert len(R) == 14
 
@@ -266,7 +268,8 @@ def test_numeral2number_items_uk():
         "сто сорок дві тисячі тридцять один", 
         lang="uk",
         numeral_data=numeral_data.numeral_data,
-        flexi_index=numeral_data.flexi_index
+        flexi_index=numeral_data.flexi_index,
+        multi_threaded=False
     )
     assert len(R) == 6
     assert R[0].value == 100
@@ -280,7 +283,8 @@ def test_numeral2number_items_uk():
         "тисяча сорок дві тисячі", 
         lang="uk",
         numeral_data=numeral_data.numeral_data,
-        flexi_index=numeral_data.flexi_index
+        flexi_index=numeral_data.flexi_index,
+        multi_threaded=False
     )
     assert len(R) == 4
     assert R[0].value == 1000
@@ -292,7 +296,9 @@ def test_numeral2number_items_uk():
         "дванадцять сотня", 
         lang="uk",
         numeral_data=numeral_data.numeral_data,
-        flexi_index=numeral_data.flexi_index)
+        flexi_index=numeral_data.flexi_index,
+        multi_threaded=False
+    )
     assert len(R) == 2
     assert R[0].value == 12
     assert R[1].value == 100
@@ -302,7 +308,9 @@ def test_numeral2number_items_uk():
         "one hundred forty-two thousand thirty-one", 
         lang="en",
         numeral_data=numeral_data.numeral_data,
-        flexi_index=numeral_data.flexi_index)
+        flexi_index=numeral_data.flexi_index,
+        multi_threaded=False
+    )
     assert R[0].value == 1
     assert R[1].value == 100
     assert R[1].scale
@@ -320,7 +328,8 @@ def test_numeral2number_items_ru():
         "двести тридцать четыре тысячи шестьсот пятнадцать", 
         lang="ru",
         numeral_data=numeral_data.numeral_data,
-        flexi_index=numeral_data.flexi_index
+        flexi_index=numeral_data.flexi_index,
+        multi_threaded=False,
     )
     assert len(R) == 6
     assert R[0].value == 200
@@ -335,7 +344,8 @@ def test_numeral2number_items_ru():
         "сто тридцать четыре",
         lang="ru",
         numeral_data=numeral_data.numeral_data,
-        flexi_index=numeral_data.flexi_index
+        flexi_index=numeral_data.flexi_index,
+        multi_threaded=False
     )
     assert len(R) == 14
 
@@ -343,7 +353,8 @@ def test_numeral2number_items_ru():
         "сто сорок две тисячи тридцать один",
         lang="ru",
         numeral_data=numeral_data.numeral_data,
-        flexi_index=numeral_data.flexi_index
+        flexi_index=numeral_data.flexi_index,
+        multi_threaded=False
     )
     assert len(R) == 6
     assert R[0].value == 100
@@ -353,10 +364,12 @@ def test_numeral2number_items_ru():
     assert R[4].value == 30
     assert R[5].value == 1
 
-    R =_numeral2number_items("тысяча сорок две тысячи",
+    R =_numeral2number_items(
+        "тысяча сорок две тысячи",
         lang="ru",
         numeral_data=numeral_data.numeral_data,
-        flexi_index=numeral_data.flexi_index
+        flexi_index=numeral_data.flexi_index,
+        multi_threaded=False
     )
     assert len(R) == 4
     assert R[0].value == 1000
@@ -364,10 +377,12 @@ def test_numeral2number_items_ru():
     assert R[2].value == 2
     assert R[3].value == 1000
 
-    R =_numeral2number_items("двенадцать сто",
+    R =_numeral2number_items(
+        "двенадцать сто",
         lang="ru",
         numeral_data=numeral_data.numeral_data,
-        flexi_index=numeral_data.flexi_index
+        flexi_index=numeral_data.flexi_index,
+        multi_threaded=False
     )
     assert len(R) == 2
     assert R[0].value == 12
@@ -375,10 +390,12 @@ def test_numeral2number_items_ru():
     
     numeral_data = _get_language_data('en')
 
-    R =_numeral2number_items("nine hundred and ninety-nine thousand",
+    R =_numeral2number_items(
+        "nine hundred and ninety-nine thousand",
         lang="en",
         numeral_data=numeral_data.numeral_data,
-        flexi_index=numeral_data.flexi_index
+        flexi_index=numeral_data.flexi_index,
+        multi_threaded=False
     )
     assert len(R) == 5
     assert R[0].value == 9
@@ -393,10 +410,11 @@ def test_numeral2number_items_with_not_number():
     msg = 'Cannot convert "варіант" to integer'
     with pytest.raises(ValueError, match=msg):
        _numeral2number_items(
-           "перший варіант",
+            "перший варіант",
             lang="uk",
             numeral_data=numeral_data.numeral_data,
-            flexi_index=numeral_data.flexi_index
+            flexi_index=numeral_data.flexi_index,
+            multi_threaded=False
     )
 
 
