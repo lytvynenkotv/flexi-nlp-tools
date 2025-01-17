@@ -1,7 +1,7 @@
 # nlp-flexi-tools
 
 [![Python Versions](https://img.shields.io/badge/Python%20Versions-%3E%3D3.11-informational)](https://pypi.org/project/nlp-flexi-tools/)
-[![Version](https://img.shields.io/badge/Version-0.1.3-informational)](https://pypi.org/project/nlp-flexi-tools/)
+[![Version](https://img.shields.io/badge/Version-0.1.4-informational)](https://pypi.org/project/nlp-flexi-tools/)
 
 A natural language processing toolkit based on the flexi-dict data structure, designed for efficient fuzzy search, with a focus on simplicity, performance, and flexibility.
 
@@ -21,6 +21,9 @@ The Numeral Converter allows you to:
 - Convert integers back into their textual numeral form, considering morphological parameters.
 - Find and replace numerals in a text with their numeric equivalents.
 
+### Demo
+Try the Numeral Converter live: [Numeral Converter Demo](https://flexi-nlp-tools-8825f3a8045e.herokuapp.com/)
+
 ### Available Languages
 - Russian (`ru`)
 - English (`en`)
@@ -34,7 +37,7 @@ Converts a numeral text into its integer representation.
 ```python
 from numeral_converter import numeral2int
 
-numeral2int("two thousand and twenty-five", lang='en')
+numeral2int(numeral="two thousand and twenty-five", lang='en', multi_threaded=True)
 # Output: 2025
 ```
 
