@@ -2443,3 +2443,10 @@ def test_scales():
         == "one hundred septilion"
     )
 
+
+def test_int2numeral_13():
+    assert int2numeral(111000001, 'uk') == 'сто одинадцять мільйонів один'
+
+
+def test_int2numeral_14():
+    assert int2numeral(111000000, 'uk') == 'сто одинадцять мільйонів'

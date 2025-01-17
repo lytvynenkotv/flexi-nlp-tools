@@ -383,22 +383,41 @@ def __define_morph_number(global_number: str, number_items: List[NumberItem], i:
 
 
 def __define_morph_case(global_case, number_items, i, global_num_class) -> Case:
+    logger.debug(f'In __define_morph_case:'
+                 f'\n\t       case: {global_case}'
+                 f'\n\t          i: {i}'
+                 f'\n\tnumber_item: {number_items[i]}'
+                 f'\n\t  num_class: {global_num_class}')
+
     case = global_case
     prev_value = number_items[i - 1].value if i > 0 else 1
 
     if i == len(number_items) - 1:
+        logger.debug(
+            f'In __define_morph_case: detect'
+            f'\n\ti == len(number_items) - 1'
+            f'\n\tprev_value: {prev_value}')
         if number_items[i].scale:
-            case = (
-                Case.NOMINATIVE
-                if prev_value == 1
-                else Case.NOMINATIVE
-                if prev_value in (2, 3, 4)
-                else Case.GENETIVE
-            )
+            if prev_value in (1, 2, 3, 4):
+                logger.debug(
+                    f'In __define_morph_case: detect'
+                    f'\n\tprev_value in (1, 2, 3, 4)'
+                    f'\n\tcase: {case} -> NOMINATIVE')
+                case = Case.NOMINATIVE
+            else:
+                logger.debug(
+                    f'In __define_morph_case: detect'
+                    f'\n\tprev_value not in (1, 2, 3, 4)'
+                    f'\n\tcase: {case} -> NOMINATIVE')
+                case = Case.GENETIVE
 
         return case
 
     if global_num_class == NumClass.ORDINAL:
+        logger.debug(
+            f'In __define_morph_case: detect'
+            f'\n\tglobal_num_class == NumClass.ORDINAL'
+            f'\n\tcase: {case} -> NOMINATIVE')
         case = Case.NOMINATIVE
 
     if (
@@ -407,12 +426,33 @@ def __define_morph_case(global_case, number_items, i, global_num_class) -> Case:
         and number_items[i + 1].scale
     ):
         if case == Case.ACCUSATIVE:
+            logger.debug(
+                f'In __define_morph_case: detect'
+                f'\n\tnext item is scaled'
+                f'\n\tcase: {case}'
+                f'\n\tcase: {case} -> NOMINATIVE')
             case = Case.NOMINATIVE
         return case
 
     if number_items[i].scale:
-        if case in (Case.NOMINATIVE, Case.ACCUSATIVE):
-            case = Case.NOMINATIVE if prev_value in (1, 2, 3, 4) else Case.GENETIVE
+        logger.debug(
+            f'In __define_morph_case: detect'
+            f'\n\titem is scaled'
+            f'\n\tcase: {case}')
+        if case in (Case.NOMINATIVE, Case.ACCUSATIVE) or case is None:
+            if prev_value in (1, 2, 3, 4):
+                logger.debug(
+                    f'In __define_morph_case: detect'
+                    f'\n\tprev_value in (1, 2, 3, 4)'
+                    f'\n\tcase: {case} -> NOMINATIVE ')
+                case = Case.NOMINATIVE
+            else:
+                logger.debug(
+                    f'In __define_morph_case: detect'
+                    f'\n\tprev_value not in (1, 2, 3, 4)'
+                    f'\n\tcase: {case} -> GENETIVE ')
+                case = Case.GENETIVE
+
             return case
 
     if case == Case.ACCUSATIVE and i != len(number_items) - 2:
