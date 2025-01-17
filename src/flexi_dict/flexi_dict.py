@@ -91,9 +91,8 @@ class FlexiDict:
 
     def save_trie(self, filename: str):
         with open(filename, "wb") as f:
-            dill.dump(file=f, obj=self.trie, recurse=True)
+            dill.dump(file=f, obj=self._trie, recurse=True)
 
     def load_trie(self, filename: str) -> None:
         with open(filename, "rb") as f:
-            trie = dill.load(file=f)
-            self._trie = trie
+            self._trie = dill.load(file=f)
