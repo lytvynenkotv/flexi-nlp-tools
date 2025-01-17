@@ -27,42 +27,84 @@ class NumeralWord:
 
 
 def _numeral2number_items(
-        numeral: str, lang: str, flexi_index: FlexiDict, numeral_data: NumeralData) -> List[NumberItem]:
+    numeral: str, lang: str, flexi_index: FlexiDict, numeral_data: NumeralData
+) -> List[NumberItem]:
+    """
+    Converts a textual numeral into a list of NumberItem objects representing its components.
+
+    Args:
+        numeral (str): The textual representation of the numeral to convert.
+        lang (str): The language of the numeral for preprocessing and interpretation.
+        flexi_index (FlexiDict): A flexible dictionary-like structure for fuzzy searching numeral components.
+        numeral_data (NumeralData): A data structure containing numeral definitions, values, and attributes.
+
+    Returns:
+        List[NumberItem]: A list of NumberItem objects representing the decomposed numeral.
+
+    Raises:
+        ValueError: If any part of the numeral cannot be converted to a number or contains invalid components.
+
+    Example:
+        >>> numeral = "one hundred twenty-three"
+        >>> lang = "en"
+        >>> flexi_index = FlexiDict()
+        >>> numeral_data = load_numeral_data(lang)
+        >>> result = _numeral2number_items(numeral, lang, flexi_index, numeral_data)
+        >>> for item in result:
+        >>>     print(item)
+        NumberItem(value=1, order=2, scale=1)
+        NumberItem(value=100, order=1, scale=0)
+        NumberItem(value=23, order=0, scale=0)
+    """
     numeral = preprocess_numeral(numeral, lang)
-    number_items: List[NumberItem] = list()
+    number_items: List[NumberItem] = []
 
-    for i, number_word in enumerate(numeral.split(" ")[::-1]):
+    for i, number_word in enumerate(reversed(numeral.split())):
         fuzzy_search_result = flexi_index.get(number_word)
-
-        if not len(fuzzy_search_result):
-            raise ValueError(f'can\'t convert "{number_word}" to integer')
+        if not fuzzy_search_result:
+            raise ValueError(f'Cannot convert "{number_word}" to integer')
 
         if i > 0:
+            # Filter ordinal numerals from non-terminal positions
             fuzzy_search_result = [
-                idx
-                for idx in fuzzy_search_result
-                if not _is_ordinal(numeral_data[idx])
+                idx for idx in fuzzy_search_result if not _is_ordinal(numeral_data[idx])
             ]
-            if not len(fuzzy_search_result):
-                raise ValueError(f'ordinal numeral word "{number_word}" inside numeral')
+            if not fuzzy_search_result:
+                raise ValueError(f'Ordinal numeral word "{number_word}" inside numeral')
 
+        numeral_entry = numeral_data[fuzzy_search_result[0]]
+        number_items.append(NumberItem(
+            value=numeral_entry.value,
+            order=numeral_entry.order,
+            scale=numeral_entry.scale,
+        ))
 
-        numeral_idx = fuzzy_search_result[0]
-        numeral_entry = numeral_data[numeral_idx]
-
-        number_items.insert(
-            0,
-            NumberItem(
-                value=numeral_entry.value,
-                order=numeral_entry.order,
-                scale=numeral_entry.scale,
-            ),
-        )
-
-    return number_items
+    return number_items[::-1]
 
 
 def _number_items2int(number_items: List[NumberItem]) -> int:
+    """
+    Converts a list of NumberItem objects into an integer value.
+
+    Args:
+        number_items (List[NumberItem]): List of NumberItem objects, representing decomposed numeral parts.
+
+    Returns:
+        int: The integer value represented by the input NumberItem list.
+
+    Raises:
+        ValueError: If the structure of the number items is invalid or inconsistent.
+
+    Example:
+        >>> number_items = [
+        >>>     NumberItem(value=1, order=2, scale=0),
+        >>>     NumberItem(value=100, order=1, scale=0),
+        >>>     NumberItem(value=23, order=0, scale=0),
+        >>> ]
+        >>> result = _number_items2int(number_items)
+        >>> print(result)
+        123
+    """
     int_value = 0
     number_items = number_items[::-1]
 
@@ -95,6 +137,85 @@ def _number_items2int(number_items: List[NumberItem]) -> int:
         int_value += 10**num_block_order
 
     return int(int_value)
+
+# def _int2number_items(number: int, lang: str) -> List[NumberItem]:
+#
+#     logger.debug(f'In _int2number_items:\n\tnumber: {number}\n\tlang: {lang}')
+#     if number == 0:
+#         return [
+#             NumberItem(0, -1, None),
+#         ]
+#
+#     number_items: List[NumberItem] = list()
+#     current_order, ones = 0, None  # type: int, Optional[int]
+#
+#     mem = None
+#
+#     while number:
+#         logger.debug(f'Step #{number}')
+#         digit = number % 10
+#         if current_order % 3 == 2 and digit:
+#
+#             if mem:
+#                 logger.debug(f'Step #{number}: detected order % 3 == 2, inserted from mem: {mem}')
+#                 number_items.insert(0, mem)
+#                 mem = None
+#             if lang == 'en':
+#                 number_items.insert(0, NumberItem(100, current_order % 3, None))
+#                 number_items.insert(0, NumberItem(digit, current_order % 3, None))
+#                 logger.debug(f'Step #{number}: detected order == 2, inserted {digit} and {100}')
+#             else:
+#                 number_items.insert(0, NumberItem(100 * digit, current_order % 3, None))
+#                 logger.debug(f'Step #{number}: detected order == 2, inserted {100 * digit}')
+#
+#         elif current_order % 3 == 0:
+#             logger.debug(f'Step #{number}: detected order % 3 == 0')
+#             ones = digit
+#             if current_order > 0:
+#                 mem = NumberItem(10**current_order, current_order, True)
+#         else:
+#             logger.debug(f'Step #{number}')
+#             if digit == 1 and ones > 0:
+#                 value = 10 * digit + ones
+#                 if value:
+#                     if mem:
+#                         number_items.insert(0, mem)
+#                         mem = None
+#                     number_items.insert(0, NumberItem(value, current_order % 3, None))
+#                     logger.debug(f'Step #{number}: inserted {value}')
+#             else:
+#                 if ones:
+#                     if mem:
+#                         number_items.insert(0, mem)
+#                         mem = None
+#                     number_items.insert(0, NumberItem(ones, 0, None))
+#                     logger.debug(f'Step #{number}: inserted {ones}')
+#
+#                 if digit:
+#                     if mem:
+#                         number_items.insert(0, mem)
+#                         mem = None
+#                     number_items.insert(
+#                         0, NumberItem(10 * digit, current_order % 3, None)
+#                     )
+#                     logger.debug(f'Step #{number}: inserted {10 * digit}')
+#
+#             ones = None
+#
+#         current_order += 1
+#         number = number // 10
+#
+#     if ones:
+#         if mem:
+#             number_items.insert(0, mem)
+#         number_items.insert(0, NumberItem(ones, 0, None))
+#
+#     if number_items[0].scale is not None:
+#         number_items.insert(0, NumberItem(1, 0, None))
+#
+#
+#     logger.debug(f'Result: {number_items}')
+#     return number_items[::-1]
 
 
 def _int2number_items(number: int, lang: str) -> List[NumberItem]:
@@ -172,8 +293,9 @@ def _int2number_items(number: int, lang: str) -> List[NumberItem]:
     if number_items[0].scale is not None:
         number_items.insert(0, NumberItem(1, 0, None))
 
+
     logger.debug(f'Result: {number_items}')
-    return number_items
+    return number_items[::-1]
 
 
 def __int2numeral_word(

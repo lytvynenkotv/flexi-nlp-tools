@@ -1,26 +1,29 @@
 from typing import Dict
 import logging
+from collections import defaultdict
 
 from .numeral_data_collector import NumeralDataContainer, NumeralDataCollector
 from .numeral_data_collector.numeral_data_collector import NumeralDataLoader
+
+
 logger = logging.getLogger(__name__)
 
-_NUMERAL_LANGUAGE_DATA: Dict[str, NumeralDataContainer] = {}
+_NUMERAL_LANGUAGE_DATA: Dict[str, NumeralDataContainer] = defaultdict(lambda: None)
+_numeral_data_collector = NumeralDataCollector()
+_numeral_data_loader = NumeralDataLoader()
 
 
-def _load_language_data_if_needed(lang: str):
+def _get_language_data(lang: str):
     """
     Check if the language is already loaded, and if not, load the necessary language data.
 
     Args:
         lang (str): The language code (e.g., 'en', 'uk', 'ru').
     """
-    if lang not in _NUMERAL_LANGUAGE_DATA:
+    if _NUMERAL_LANGUAGE_DATA[lang] is None:
         logger.debug(f"Loading language data for: {lang}")
-        numeral_data_collector = NumeralDataCollector()
-        _NUMERAL_LANGUAGE_DATA[lang] = numeral_data_collector.collect(lang)
-    else:
-        logger.debug(f"Language data for '{lang}' is already loaded.")
+        _NUMERAL_LANGUAGE_DATA[lang] = _numeral_data_collector.collect(lang)
+    return _NUMERAL_LANGUAGE_DATA[lang]
 
 
 def get_available_languages():

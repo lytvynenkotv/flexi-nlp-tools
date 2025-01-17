@@ -1,9 +1,6 @@
 import os
 import importlib.resources as pkg_resources
-from importlib.resources import files
 
-
-from pathlib import Path
 import numeral_converter
 
 
@@ -18,4 +15,3 @@ DEFAULT_DELETION_PRICE = .4
 DEFAULT_SUBSTITUTION_PRICE = .2
 DEFAULT_INSERTION_PRICE = .05
 DEFAULT_TRANSPOSITION_PRICE = .35
-

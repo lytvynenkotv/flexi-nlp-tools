@@ -1,5 +1,5 @@
 import re
-from typing import Optional
+from .patterns import ENGLISH_RULES, MULTIPLE_SPACES
 
 
 def preprocess_numeral(numeral: str, lang: str) -> str:
@@ -24,11 +24,10 @@ def preprocess_numeral(numeral: str, lang: str) -> str:
     """
     # Handle specific language rules
     if lang == "en":
-        numeral = re.sub(r"-", " ", numeral)  # Replace hyphens with spaces
-        numeral = re.sub(r"\sand\s", " ", numeral)  # Remove "and" from the string
+        numeral = ENGLISH_RULES.sub(" ", numeral)
 
     # General preprocessing (spaces and case normalization)
-    numeral = re.sub(r"\s+", " ", numeral).strip()  # Collapse multiple spaces into one
+    numeral = MULTIPLE_SPACES.sub(" ", numeral).strip()  # Collapse multiple spaces into one
     numeral = numeral.lower()  # Convert to lowercase
 
     return numeral
@@ -50,4 +49,7 @@ def preprocess_number_string(number_string: str) -> str:
         "five"
     """
     # Strips leading and trailing spaces and converts to lowercase
-    return number_string.strip().lower()
+    number_string = number_string.strip()
+    if number_string:
+        number_string = number_string.lower()
+    return number_string

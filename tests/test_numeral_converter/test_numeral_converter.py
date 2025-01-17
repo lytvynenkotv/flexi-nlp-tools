@@ -3,6 +3,7 @@ import pytest
 from src.numeral_converter.numeral_data_collector.numeral_data_loader.numeral_entry import NumClass, Gender, Number, Case
 from src.numeral_converter import numeral2int, int2numeral, int2numerals, get_available_languages, convert_numerical_in_text
 
+
 def test_():
     print(get_available_languages())
     print(numeral2int("two thousand and twenty-five", lang='en'))
@@ -92,13 +93,13 @@ def test_numeral2int_invalid_numeral():
 
 
 def test_numeral2int_spelling_invalid_numeral():
-    msg = r'ordinal numeral word "[^"]+" inside numeral'
+    msg = r'Ordinal numeral word "[^"]+" inside numeral'
     with pytest.raises(ValueError, match=msg):
         numeral2int("три мільярди тисячний пятдесят пятий мільон", lang="uk")
 
 
 def test_numeral2int_not_number():
-    msg = 'can\'t convert "роки" to integer'
+    msg = 'Cannot convert "роки" to integer'
     with pytest.raises(ValueError, match=msg):
         numeral2int("дві тисячі двадцять три роки", lang="uk")
 
@@ -2450,3 +2451,11 @@ def test_int2numeral_13():
 
 def test_int2numeral_14():
     assert int2numeral(111000000, 'uk') == 'сто одинадцять мільйонів'
+
+
+def test_int2numeral_15():
+    assert int2numeral(100, 'uk', number=Number.SINGULAR, num_class=NumClass.ORDINAL) == 'сотий'
+
+
+def test_int2numeral_16():
+    assert int2numeral(value=100, lang='uk', case=None, num_class='ordinal', gender=None, number=None)

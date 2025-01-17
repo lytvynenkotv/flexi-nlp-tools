@@ -13,6 +13,8 @@ from ..config import (
 from .search_state import SearchState
 from .correction_detail import CorrectionDetail
 from ..utils import validate_symbol_weights, validate_symbols_distances
+
+
 logger = logging.getLogger(__name__)
 
 

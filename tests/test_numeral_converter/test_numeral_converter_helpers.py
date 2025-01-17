@@ -1,9 +1,7 @@
-from typing import Dict
-
 import pytest
 
 from src.numeral_converter.numeral_data_collector.numeral_data_loader.numeral_entry import Case, NumClass, Gender, Number
-from src.numeral_converter.numeral_converter_loader import _NUMERAL_LANGUAGE_DATA, _load_language_data_if_needed, NumeralDataContainer
+from src.numeral_converter.numeral_converter_loader import _get_language_data
 from src.numeral_converter.numeral_converter_helpers import (
     __get_combinations,
     __int2numeral_word,
@@ -11,15 +9,6 @@ from src.numeral_converter.numeral_converter_helpers import (
     _number_items2int,
     NumberItem
 )
-
-
-@pytest.fixture
-def numeral_language_data() -> Dict[str, NumeralDataContainer]:
-    _load_language_data_if_needed('uk')
-    _load_language_data_if_needed('ru')
-    _load_language_data_if_needed('en')
-    return _NUMERAL_LANGUAGE_DATA
-
 
 
 def test_number_items2int():
@@ -171,21 +160,23 @@ def test_scale_of_scale():
     )
 
 
-def test_int2numeral_word_existing_number_word_with_one_form(numeral_language_data):
+def test_int2numeral_word_existing_number_word_with_one_form():
+    numeral_data = _get_language_data('uk')
     R = __int2numeral_word(
         12, 
-        numeral_data=numeral_language_data['uk'].numeral_data,
-        value_index=numeral_language_data['uk'].value_index
+        numeral_data=numeral_data.numeral_data,
+        value_index=numeral_data.value_index
     )
     assert R.default == "дванадцять"
     assert len(R.alt) == 0
 
 
-def test_int2numeral_word_existing_number_word_with_several_forms(numeral_language_data):
+def test_int2numeral_word_existing_number_word_with_several_forms():
+    numeral_data = _get_language_data('uk')
     R = __int2numeral_word(
         7,         
-        numeral_data=numeral_language_data['uk'].numeral_data,
-        value_index=numeral_language_data['uk'].value_index, 
+        numeral_data=numeral_data.numeral_data,
+        value_index=numeral_data.value_index, 
         case=Case.DATIVE
     )
     assert len(R.alt) == 1
@@ -194,19 +185,20 @@ def test_int2numeral_word_existing_number_word_with_several_forms(numeral_langua
     ]
 
 
-def test_int2numeral_word_converting_in_different_morph_forms(numeral_language_data):
+def test_int2numeral_word_converting_in_different_morph_forms():
+    numeral_data = _get_language_data('uk')
     R = __int2numeral_word(
         12, 
-        numeral_data=numeral_language_data['uk'].numeral_data,
-        value_index=numeral_language_data['uk'].value_index, 
+        numeral_data=numeral_data.numeral_data,
+        value_index=numeral_data.value_index, 
         num_class=NumClass.ORDINAL, gender=Gender.FEMININE,
         number=Number.SINGULAR)
     assert R.default == "дванадцята"
 
     R = __int2numeral_word(
         12,
-        numeral_data=numeral_language_data['uk'].numeral_data,
-        value_index=numeral_language_data['uk'].value_index,
+        numeral_data=numeral_data.numeral_data,
+        value_index=numeral_data.value_index,
         num_class=NumClass.ORDINAL,
         gender=Gender.MASCULINE,
         number=Number.SINGULAR
@@ -215,8 +207,8 @@ def test_int2numeral_word_converting_in_different_morph_forms(numeral_language_d
 
     R = __int2numeral_word(
         12,
-        numeral_data=numeral_language_data['uk'].numeral_data,
-        value_index=numeral_language_data['uk'].value_index,
+        numeral_data=numeral_data.numeral_data,
+        value_index=numeral_data.value_index,
         num_class=NumClass.ORDINAL,
         number=Number.PLURAL,
         gender=Gender.MASCULINE
@@ -224,31 +216,34 @@ def test_int2numeral_word_converting_in_different_morph_forms(numeral_language_d
     assert R.default == "дванадцяті"
 
 
-def test_int2numeral_word_converting_in_not_full_morph_form(numeral_language_data):
+def test_int2numeral_word_converting_in_not_full_morph_form():
+    numeral_data = _get_language_data('uk')
     assert __int2numeral_word(
         1000,
-        numeral_data=numeral_language_data['uk'].numeral_data,
-        value_index=numeral_language_data['uk'].value_index,
+        numeral_data=numeral_data.numeral_data,
+        value_index=numeral_data.value_index,
         number=Number.SINGULAR).default == "тисяча"
 
 
-def test_int2numeral_word_number_without_data(numeral_language_data):
+def test_int2numeral_word_number_without_data():
+    numeral_data = _get_language_data('uk')
     msg = "no data for number 42"
     with pytest.raises(ValueError, match=msg):
         __int2numeral_word(
             42,
-            numeral_data=numeral_language_data['uk'].numeral_data,
-            value_index=numeral_language_data['uk'].value_index,
+            numeral_data=numeral_data.numeral_data,
+            value_index=numeral_data.value_index,
         )
 
 
-def test_numeral2number_items_uk(numeral_language_data):
+def test_numeral2number_items_uk():
+    numeral_data = _get_language_data('uk')
     
     R = _numeral2number_items(
         "двісти тридцать чотири тисячі шістот п’ятнадцять", 
         lang="uk",
-        numeral_data=numeral_language_data['uk'].numeral_data,
-        flexi_index=numeral_language_data['uk'].flexi_index
+        numeral_data=numeral_data.numeral_data,
+        flexi_index=numeral_data.flexi_index
     )
     assert len(R) == 6
     assert R[0].value == 200
@@ -262,16 +257,16 @@ def test_numeral2number_items_uk(numeral_language_data):
         "три мільони шість тисяч шістдесят сім мільон двісті двадцясь "
         "сім тисяч сто тридцять чотири",
         lang="uk",
-        numeral_data=numeral_language_data['uk'].numeral_data,
-        flexi_index=numeral_language_data['uk'].flexi_index
+        numeral_data=numeral_data.numeral_data,
+        flexi_index=numeral_data.flexi_index
     )
     assert len(R) == 14
 
     R = _numeral2number_items(
         "сто сорок дві тисячі тридцять один", 
         lang="uk",
-        numeral_data=numeral_language_data['uk'].numeral_data,
-        flexi_index=numeral_language_data['uk'].flexi_index
+        numeral_data=numeral_data.numeral_data,
+        flexi_index=numeral_data.flexi_index
     )
     assert len(R) == 6
     assert R[0].value == 100
@@ -284,8 +279,8 @@ def test_numeral2number_items_uk(numeral_language_data):
     R = _numeral2number_items(
         "тисяча сорок дві тисячі", 
         lang="uk",
-        numeral_data=numeral_language_data['uk'].numeral_data,
-        flexi_index=numeral_language_data['uk'].flexi_index
+        numeral_data=numeral_data.numeral_data,
+        flexi_index=numeral_data.flexi_index
     )
     assert len(R) == 4
     assert R[0].value == 1000
@@ -296,17 +291,18 @@ def test_numeral2number_items_uk(numeral_language_data):
     R = _numeral2number_items(
         "дванадцять сотня", 
         lang="uk",
-        numeral_data=numeral_language_data['uk'].numeral_data,
-        flexi_index=numeral_language_data['uk'].flexi_index)
+        numeral_data=numeral_data.numeral_data,
+        flexi_index=numeral_data.flexi_index)
     assert len(R) == 2
     assert R[0].value == 12
     assert R[1].value == 100
 
+    numeral_data = _get_language_data('en')
     R = _numeral2number_items(
         "one hundred forty-two thousand thirty-one", 
         lang="en",
-        numeral_data=numeral_language_data['en'].numeral_data,
-        flexi_index=numeral_language_data['en'].flexi_index)
+        numeral_data=numeral_data.numeral_data,
+        flexi_index=numeral_data.flexi_index)
     assert R[0].value == 1
     assert R[1].value == 100
     assert R[1].scale
@@ -318,12 +314,13 @@ def test_numeral2number_items_uk(numeral_language_data):
     assert R[6].value == 1
 
 
-def test_numeral2number_items_ru(numeral_language_data):
+def test_numeral2number_items_ru():
+    numeral_data = _get_language_data('ru')
     R = _numeral2number_items(
         "двести тридцать четыре тысячи шестьсот пятнадцать", 
         lang="ru",
-        numeral_data=numeral_language_data['ru'].numeral_data,
-        flexi_index=numeral_language_data['ru'].flexi_index
+        numeral_data=numeral_data.numeral_data,
+        flexi_index=numeral_data.flexi_index
     )
     assert len(R) == 6
     assert R[0].value == 200
@@ -337,16 +334,16 @@ def test_numeral2number_items_ru(numeral_language_data):
         "три миллиона шесть тысяч шестдесят семь миллионов двести двадцать семь тысяч "
         "сто тридцать четыре",
         lang="ru",
-        numeral_data=numeral_language_data['ru'].numeral_data,
-        flexi_index=numeral_language_data['ru'].flexi_index
+        numeral_data=numeral_data.numeral_data,
+        flexi_index=numeral_data.flexi_index
     )
     assert len(R) == 14
 
     R = _numeral2number_items(
         "сто сорок две тисячи тридцать один",
         lang="ru",
-        numeral_data=numeral_language_data['ru'].numeral_data,
-        flexi_index=numeral_language_data['ru'].flexi_index
+        numeral_data=numeral_data.numeral_data,
+        flexi_index=numeral_data.flexi_index
     )
     assert len(R) == 6
     assert R[0].value == 100
@@ -358,8 +355,8 @@ def test_numeral2number_items_ru(numeral_language_data):
 
     R =_numeral2number_items("тысяча сорок две тысячи",
         lang="ru",
-        numeral_data=numeral_language_data['ru'].numeral_data,
-        flexi_index=numeral_language_data['ru'].flexi_index
+        numeral_data=numeral_data.numeral_data,
+        flexi_index=numeral_data.flexi_index
     )
     assert len(R) == 4
     assert R[0].value == 1000
@@ -369,17 +366,19 @@ def test_numeral2number_items_ru(numeral_language_data):
 
     R =_numeral2number_items("двенадцать сто",
         lang="ru",
-        numeral_data=numeral_language_data['ru'].numeral_data,
-        flexi_index=numeral_language_data['ru'].flexi_index
+        numeral_data=numeral_data.numeral_data,
+        flexi_index=numeral_data.flexi_index
     )
     assert len(R) == 2
     assert R[0].value == 12
     assert R[1].value == 100
+    
+    numeral_data = _get_language_data('en')
 
     R =_numeral2number_items("nine hundred and ninety-nine thousand",
         lang="en",
-        numeral_data=numeral_language_data['en'].numeral_data,
-        flexi_index=numeral_language_data['en'].flexi_index
+        numeral_data=numeral_data.numeral_data,
+        flexi_index=numeral_data.flexi_index
     )
     assert len(R) == 5
     assert R[0].value == 9
@@ -389,18 +388,19 @@ def test_numeral2number_items_ru(numeral_language_data):
     assert R[4].value == 1000
 
 
-def test_numeral2number_items_with_not_number(numeral_language_data):
-    msg = 'can\'t convert "варіант" to integer'
+def test_numeral2number_items_with_not_number():
+    numeral_data = _get_language_data('uk')
+    msg = 'Cannot convert "варіант" to integer'
     with pytest.raises(ValueError, match=msg):
        _numeral2number_items(
            "перший варіант",
             lang="uk",
-            numeral_data=numeral_language_data['uk'].numeral_data,
-            flexi_index=numeral_language_data['uk'].flexi_index
+            numeral_data=numeral_data.numeral_data,
+            flexi_index=numeral_data.flexi_index
     )
 
 
-def test_one_item_array(numeral_language_data):
+def test_one_item_array():
     assert list(
         __get_combinations(
             [1, 2],
@@ -408,7 +408,7 @@ def test_one_item_array(numeral_language_data):
     ) == [[1], [2]]
 
 
-def test_one_item_arrays(numeral_language_data):
+def test_one_item_arrays():
     assert list(
         __get_combinations(
             [

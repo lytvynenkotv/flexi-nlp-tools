@@ -1,7 +1,7 @@
 from src.numeral_converter import convert_numerical_in_text
 
 
-def test_convert_numerical_in_text():
+def test_convert_numerical_in_text_01():
     s = (
         "Прості числівники мають один корінь. Складні числівники мають два корені. "
         "Складені числівники містять в собі два і більше простих чи складних "
@@ -48,3 +48,25 @@ def test_convert_numerical_in_text():
     )
 
     assert convert_numerical_in_text(s, lang="en") == expect
+
+
+def test_convert_numerical_in_text_02():
+    s = (
+        "Один, Два, Три"
+    )
+
+    expect = (
+        "1, 2, 3"
+    )
+    assert convert_numerical_in_text(s, lang="uk") == expect
+
+
+def test_convert_numerical_in_text_03():
+    s = (
+        "Один Два Три"
+    )
+
+    expect = (
+        "1 2 3"
+    )
+    assert convert_numerical_in_text(s, lang="uk") == expect

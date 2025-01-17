@@ -1,6 +1,6 @@
 from typing import List, Optional
 from .numeral_converter_helpers import NumberItem, preprocess_numeral, _number_items2int
-from .numeral_converter_loader import _load_language_data_if_needed, _NUMERAL_LANGUAGE_DATA
+from .numeral_converter_loader import _get_language_data
 from .patterns import WORD_PATTERN
 
 
@@ -32,7 +32,7 @@ def convert_numerical_in_text(
     "У моєму портфелі лежало 4 книги."
 
     """
-    _load_language_data_if_needed(lang)
+    lang_data = _get_language_data(lang)
 
     updated_text = str()
     i = 0
@@ -41,18 +41,15 @@ def convert_numerical_in_text(
     prev_number_end = None
 
     for match in WORD_PATTERN.finditer(text):
-        number_idxs = _NUMERAL_LANGUAGE_DATA[lang].flexi_index.get(
+        number_idxs = lang_data.flexi_index.get(
             preprocess_numeral(match.group(), lang=lang),
             max_correction_rate=max_correction_rate
         )
 
         if number_idxs:
             idx = number_idxs[0]
-            number_item = NumberItem(
-                _NUMERAL_LANGUAGE_DATA[lang].numeral_data[idx].value,
-                _NUMERAL_LANGUAGE_DATA[lang].numeral_data[idx].order,
-                _NUMERAL_LANGUAGE_DATA[lang].numeral_data[idx].scale,
-            )
+            numeral_entry = lang_data.numeral_data[idx]
+            number_item = NumberItem(numeral_entry.value, numeral_entry.order, numeral_entry.scale)
 
             # number starts
             if not len(number_items):

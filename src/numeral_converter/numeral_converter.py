@@ -8,7 +8,7 @@ from .numeral_converter_helpers import (
     _number_items2int,
     _number_items2numeral
 )
-from .numeral_converter_loader import _load_language_data_if_needed, _NUMERAL_LANGUAGE_DATA
+from .numeral_converter_loader import _get_language_data
 
 
 logger = logging.getLogger(__name__)
@@ -29,14 +29,14 @@ def numeral2int(numeral: str, lang: str) -> Optional[int]:
         >>> numeral2int("сорок два", lang="uk")
         42
     """
-    _load_language_data_if_needed(lang)
+    language_data = _get_language_data(lang)
 
     logger.info(f"Converting numeral '{numeral}' to integer in language '{lang}'")
 
     number_items = _numeral2number_items(
         numeral=numeral, lang=lang,
-        numeral_data=_NUMERAL_LANGUAGE_DATA[lang].numeral_data,
-        flexi_index=_NUMERAL_LANGUAGE_DATA[lang].flexi_index
+        numeral_data=language_data.numeral_data,
+        flexi_index=language_data.flexi_index
     )
     value = _number_items2int(number_items=number_items)
     if value is not None:
@@ -72,14 +72,14 @@ def int2numeral(
         'сорок два'
     """
     logger.info(f"Converting integer '{value}' to numeral in language '{lang}'")
-    _load_language_data_if_needed(lang)
+    language_data = _get_language_data(lang)
     number_items = _int2number_items(value, lang)
 
     numeral = _number_items2numeral(
         number_items,
         lang=lang,
-        numeral_data=_NUMERAL_LANGUAGE_DATA[lang].numeral_data,
-        value_index=_NUMERAL_LANGUAGE_DATA[lang].value_index,
+        numeral_data=language_data.numeral_data,
+        value_index=language_data.value_index,
         case=Case(case) if case else None,
         num_class=NumClass(num_class) if num_class else None,
         gender=Gender(gender) if gender else None,
@@ -116,14 +116,14 @@ def int2numerals(
         'сорок два'
     """
     logger.info(f"Converting integer '{value}' to numeral in language '{lang}'")
-    _load_language_data_if_needed(lang)
+    language_data = _get_language_data(lang)
     numeral_items = _int2number_items(value, lang)
 
     numeral = _number_items2numeral(
         numeral_items,
         lang=lang,
-        numeral_data=_NUMERAL_LANGUAGE_DATA[lang].numeral_data,
-        value_index=_NUMERAL_LANGUAGE_DATA[lang].value_index,
+        numeral_data=language_data.numeral_data,
+        value_index=language_data.value_index,
         case=Case(case) if case else None,
         num_class=NumClass(num_class) if num_class else None,
         gender=Gender(gender) if gender else None,
