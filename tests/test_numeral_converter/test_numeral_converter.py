@@ -2459,3 +2459,9 @@ def test_int2numeral_15():
 
 def test_int2numeral_16():
     assert int2numeral(value=100, lang='uk', case=None, num_class='ordinal', gender=None, number=None)
+
+
+def test_numeral2int_multi_threading():
+    numeral = "двісті двадцять один трильйон двісті двадцять два мільярди триста тридцять три мільйони чотириста сорок чотири тисячі п’ятсот п’ятдесят п’ята"
+    assert numeral2int(numeral, lang="uk", multi_threaded=False) == numeral2int(numeral, lang="uk", multi_threaded=True)
+

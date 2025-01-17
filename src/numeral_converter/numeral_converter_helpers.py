@@ -3,6 +3,7 @@ from typing import List, Optional, Dict, Set, Any
 import math
 from dataclasses import dataclass
 import logging
+from concurrent.futures import ThreadPoolExecutor
 
 from .numeral_data_collector.flexi_index_builder.flexi_index_builder import FlexiDict
 from .numeral_data_collector.numeral_data_loader.numeral_entry import NumeralEntry, Case, Gender, Number, NumClass
@@ -27,7 +28,7 @@ class NumeralWord:
 
 
 def _numeral2number_items(
-    numeral: str, lang: str, flexi_index: FlexiDict, numeral_data: NumeralData
+    numeral: str, lang: str, flexi_index: FlexiDict, numeral_data: NumeralData, multi_threaded: bool
 ) -> List[NumberItem]:
     """
     Converts a textual numeral into a list of NumberItem objects representing its components.
@@ -56,6 +57,9 @@ def _numeral2number_items(
         NumberItem(value=100, order=1, scale=0)
         NumberItem(value=23, order=0, scale=0)
     """
+    if multi_threaded:
+        return _numeral2number_items_multi_threaded(numeral, lang, flexi_index, numeral_data)
+
     numeral = preprocess_numeral(numeral, lang)
     number_items: List[NumberItem] = []
 
@@ -66,6 +70,62 @@ def _numeral2number_items(
 
         if i > 0:
             # Filter ordinal numerals from non-terminal positions
+            fuzzy_search_result = [
+                idx for idx in fuzzy_search_result if not _is_ordinal(numeral_data[idx])
+            ]
+            if not fuzzy_search_result:
+                raise ValueError(f'Ordinal numeral word "{number_word}" inside numeral')
+
+        numeral_entry = numeral_data[fuzzy_search_result[0]]
+        number_items.append(NumberItem(
+            value=numeral_entry.value,
+            order=numeral_entry.order,
+            scale=numeral_entry.scale,
+        ))
+
+    return number_items[::-1]
+
+
+def __process_word(number_word: str, flexi_index: FlexiDict, numeral_data: NumeralData) -> dict:
+    """Helper function to process a single word."""
+    fuzzy_search_result = flexi_index.get(number_word)
+    if not fuzzy_search_result:
+        raise ValueError(f'Cannot convert "{number_word}" to integer')
+
+    return {
+        "word": number_word,
+        "result": fuzzy_search_result,
+        "entry": numeral_data[fuzzy_search_result[0]],
+    }
+
+
+def _numeral2number_items_multi_threaded(
+    numeral: str, lang: str, flexi_index: FlexiDict, numeral_data: NumeralData
+) -> List[NumberItem]:
+    numeral = preprocess_numeral(numeral, lang)
+    number_words = list(reversed(numeral.split()))
+
+    results = []
+    with ThreadPoolExecutor() as executor:
+        # Map each word to its processing task
+        future_to_word = {
+            executor.submit(__process_word, word, flexi_index, numeral_data): word
+            for word in number_words
+        }
+        for future in future_to_word:
+            try:
+                results.append(future.result())
+            except ValueError as e:
+                raise e
+
+    # Post-process results to filter ordinals for non-terminal positions
+    number_items = []
+    for i, result in enumerate(results):
+        number_word = result["word"]
+        fuzzy_search_result = result["result"]
+
+        if i > 0:
+            # Filter ordinal numerals
             fuzzy_search_result = [
                 idx for idx in fuzzy_search_result if not _is_ordinal(numeral_data[idx])
             ]

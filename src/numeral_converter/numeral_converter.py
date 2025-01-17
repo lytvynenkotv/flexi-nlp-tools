@@ -14,7 +14,7 @@ from .numeral_converter_loader import _get_language_data
 logger = logging.getLogger(__name__)
 
 
-def numeral2int(numeral: str, lang: str) -> Optional[int]:
+def numeral2int(numeral: str, lang: str, multi_threaded: bool = True) -> Optional[int]:
     """
     Converts the input numeral (in the form of a string) into an integer value for the given language.
 
@@ -36,7 +36,8 @@ def numeral2int(numeral: str, lang: str) -> Optional[int]:
     number_items = _numeral2number_items(
         numeral=numeral, lang=lang,
         numeral_data=language_data.numeral_data,
-        flexi_index=language_data.flexi_index
+        flexi_index=language_data.flexi_index,
+        multi_threaded=multi_threaded
     )
     value = _number_items2int(number_items=number_items)
     if value is not None:
