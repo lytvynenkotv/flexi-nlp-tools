@@ -18,12 +18,12 @@ class FlexiIndexBuilder:
         Initialize the IndexBuilder with a search engine and optional symbol weights.
         """
         corrections = [
-            SymbolInsertion(price=1.),
-            SymbolsTransposition(price=1.),
-            SymbolsDeletion(price=1.),
-            SymbolSubstitution(price=1.)
+            SymbolInsertion(),
+            SymbolsTransposition(),
+            SymbolsDeletion(),
+            SymbolSubstitution()
         ]
-        self.__search_engine = SearchEngine(corrections=corrections, symbol_insertion=SymbolInsertion(price=1.))
+        self.__search_engine = SearchEngine(corrections=corrections, symbol_insertion=SymbolInsertion())
 
     def build(self, numeral_data: Dict[int, NumeralEntry]) -> FlexiDict:
         """Build a FlexiDict index from the provided numeral data.
