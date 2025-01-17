@@ -238,14 +238,14 @@ def _int2number_items(number: int, lang: str) -> List[NumberItem]:
 
             if mem:
                 logger.debug(f'Step #{number}: detected order % 3 == 2, inserted from mem: {mem}')
-                number_items.insert(0, mem)
+                number_items.append(mem)
                 mem = None
             if lang == 'en':
-                number_items.insert(0, NumberItem(100, current_order % 3, None))
-                number_items.insert(0, NumberItem(digit, current_order % 3, None))
+                number_items.append(NumberItem(100, current_order % 3, None))
+                number_items.append(NumberItem(digit, current_order % 3, None))
                 logger.debug(f'Step #{number}: detected order == 2, inserted {digit} and {100}')
             else:
-                number_items.insert(0, NumberItem(100 * digit, current_order % 3, None))
+                number_items.append(NumberItem(100 * digit, current_order % 3, None))
                 logger.debug(f'Step #{number}: detected order == 2, inserted {100 * digit}')
 
         elif current_order % 3 == 0:
@@ -259,25 +259,23 @@ def _int2number_items(number: int, lang: str) -> List[NumberItem]:
                 value = 10 * digit + ones
                 if value:
                     if mem:
-                        number_items.insert(0, mem)
+                        number_items.append(mem)
                         mem = None
-                    number_items.insert(0, NumberItem(value, current_order % 3, None))
+                    number_items.append(NumberItem(value, current_order % 3, None))
                     logger.debug(f'Step #{number}: inserted {value}')
             else:
                 if ones:
                     if mem:
-                        number_items.insert(0, mem)
+                        number_items.append(mem)
                         mem = None
-                    number_items.insert(0, NumberItem(ones, 0, None))
+                    number_items.append(NumberItem(ones, 0, None))
                     logger.debug(f'Step #{number}: inserted {ones}')
 
                 if digit:
                     if mem:
-                        number_items.insert(0, mem)
+                        number_items.append(mem)
                         mem = None
-                    number_items.insert(
-                        0, NumberItem(10 * digit, current_order % 3, None)
-                    )
+                    number_items.append(NumberItem(10 * digit, current_order % 3, None))
                     logger.debug(f'Step #{number}: inserted {10 * digit}')
 
             ones = None
@@ -287,12 +285,11 @@ def _int2number_items(number: int, lang: str) -> List[NumberItem]:
 
     if ones:
         if mem:
-            number_items.insert(0, mem)
-        number_items.insert(0, NumberItem(ones, 0, None))
+            number_items.append(mem)
+        number_items.append(NumberItem(ones, 0, None))
 
-    if number_items[0].scale is not None:
-        number_items.insert(0, NumberItem(1, 0, None))
-
+    if number_items[-1].scale is not None:
+        number_items.append(NumberItem(1, 0, None))
 
     logger.debug(f'Result: {number_items}')
     return number_items[::-1]
