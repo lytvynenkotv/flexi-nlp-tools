@@ -231,8 +231,9 @@ def test_get_with_mult_corrections(search_engine_for_getitem):
     assert d["fiirs"] == 1  # extra symbol + missing symbol
 
     assert d["frsd"] == 1  # 2 mistakes
-    assert d["tirsf"] == 1  # 2 mistakes
     assert d["frsd"] == 1  # 2 mistakes
+    assert set(d.get("tirsf")) == {1, 3}  # 2 mistakes
+
 
 
 def test_get_with_mult_corrections_and_values(search_engine_for_getitem):

@@ -48,3 +48,4 @@ def validate_symbols_distances(symbol_distances: Optional[Dict[Tuple[str, str], 
     validate_symbols(x)
     validate_symbols(y)
     validate_scores(list(symbol_distances.values()))
+

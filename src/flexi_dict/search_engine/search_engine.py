@@ -1,4 +1,5 @@
 import logging
+import bisect
 from typing import List, Dict, Optional
 from dataclasses import dataclass
 
@@ -64,7 +65,7 @@ class SearchEngine:
         if max_correction_rate is None:
             max_correction_rate = MAX_CORRECTION_RATE
         if max_correction_rate_for_leaves is None:
-           max_correction_rate_for_leaves = max_correction_rate
+            max_correction_rate_for_leaves = max_correction_rate
 
         search_result: List[FuzzySearchResult] = []
         visited_status: Dict[int, int] = {}
@@ -106,7 +107,12 @@ class SearchEngine:
                         max_correction_rate_for_leaves=max_correction_rate_for_leaves)
                     for item in node_result:
                         if item.value not in added:
-                            search_result.append(item)
+                            pos = bisect.bisect_left(
+                                search_result, item.total_corrections_price,
+                                lo=0, hi=len(search_result),
+                                key=lambda x: x.total_corrections_price)
+                            search_result.insert(pos, item)
+
                             added.add(item.value)
                             logger.info(f"Added result: path='{item.path}', value='{item.value}'")
                     continue
@@ -146,7 +152,6 @@ class SearchEngine:
             "\n".join([
                 f'{i+1}) "{x.path}" corr_rate: {len(x.corrections) / len(query):4.2f}, corr_price: {x.total_corrections_price:4.2f}, corrs: {x.corrections}'
                 for i, x in enumerate(search_result)]))
-        search_result = sorted(search_result, key=lambda x: x.total_corrections_price)
 
         return search_result
 
@@ -210,7 +215,11 @@ class SearchEngine:
                 corrections=corrections
             )
 
-            result.append(fuzzy_search_result)
+            pos = bisect.bisect_left(
+                                result, fuzzy_search_result.total_corrections_price,
+                                lo=0, hi=len(result),
+                                key=lambda x: x.total_corrections_price)
+            result.insert(pos, fuzzy_search_result)
 
         logger.debug(f"Generated {len(result)} results for node #{node.idx}.")
         return result
