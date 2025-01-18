@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="flexi-nlp-tools",
-    version="0.2.0",
+    version="0.2.1",
     description="NLP toolkit based on the flexi-dict data structure, designed for efficient fuzzy search, with a focus on simplicity, performance, and flexibility.",
     author="Tetiana Lytvynenko",
     author_email="lytvynenkotv@gmail.com",
