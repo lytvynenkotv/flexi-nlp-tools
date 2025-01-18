@@ -7,7 +7,7 @@ from .patterns import WORD_PATTERN
 def convert_numerical_in_text(
     text: str,
     lang: str,
-    max_correction_rate: Optional[int] = .2,
+    max_correction_rate: Optional[int] = .3,
 ) -> str:
     """
     Converts numerical string in text into integer values
@@ -41,6 +41,7 @@ def convert_numerical_in_text(
     prev_number_end = None
 
     for match in WORD_PATTERN.finditer(text):
+
         number_idxs = lang_data.flexi_index.get(
             preprocess_numeral(match.group(), lang=lang),
             max_correction_rate=max_correction_rate

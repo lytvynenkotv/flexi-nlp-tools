@@ -132,8 +132,7 @@ def test_int2numeral_07():
 
 
 def test_int2numeral_08():
-    R = int2numeral(7325, lang="en")
-    print(R)
+    assert int2numeral(7325, lang="en") == 'seven thousand three hundred twenty-five'
 
 
 def test_int2numeral_09():
@@ -2446,3 +2445,12 @@ def test_numeral2int_multi_threading():
     numeral = "двісті двадцять один трильйон двісті двадцять два мільярди триста тридцять три мільйони чотириста сорок чотири тисячі п’ятсот п’ятдесят п’ята"
     assert numeral2int(numeral, lang="uk", multi_threaded=False) == numeral2int(numeral, lang="uk", multi_threaded=True)
 
+
+def test_numeral2int_02():
+    numeral = "пять"
+    assert numeral2int(numeral, lang="uk") == 5
+
+
+def test_convert_numerical_in_text_02():
+    numeral = "пять"
+    assert convert_numerical_in_text(numeral, lang="uk") == '5'
