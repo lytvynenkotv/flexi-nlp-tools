@@ -27,6 +27,15 @@ def _get_language_data(lang: str):
 
 
 def get_available_languages():
-    numeral_data_loader = NumeralDataLoader()
-    available_languages = numeral_data_loader.get_available_languages()
+    available_languages = _numeral_data_loader.get_available_languages()
     return available_languages
+
+
+def get_max_order(lang):
+    language_data = _get_language_data(lang)
+    return language_data.max_order
+
+
+def get_max_numeral_word_number(lang):
+    language_data = _get_language_data(lang)
+    return language_data.max_numeral_word_number

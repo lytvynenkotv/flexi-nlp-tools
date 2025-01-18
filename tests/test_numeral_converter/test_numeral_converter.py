@@ -1,35 +1,14 @@
 import pytest
 
 from src.numeral_converter.numeral_data_collector.numeral_data_loader.numeral_entry import NumClass, Gender, Number, Case
-from src.numeral_converter import numeral2int, int2numeral, int2numerals, get_available_languages, convert_numerical_in_text
-
-
-def test_():
-    print(get_available_languages())
-    print(numeral2int("two thousand and twenty-five", lang='en'))
-    print(numeral2int("two thosnd and twnty-fiv", lang='en'))
-    print(numeral2int("дві тисяіч двдціять пятий", lang="uk"))
-    print(numeral2int("дві тисячі двадцять п'ятий", lang="uk"))
-    print(int2numeral(
-        2025,
-        lang='uk',
-        case="nominative",
-        gender="neuter",
-        num_class="ordinal"))
-
-    print(convert_numerical_in_text("After twenty, numbers such as twenty-five, fifty, seventy-five, "
-    "and one hundred follow. So long as one knows the core number, or the number "
-    "situated in the tens or hundreds position that determines the general "
-    "amount, understanding these more complicated numbers won't be difficult. "
-    "For example thirty-three is simply \"thirty\" plus three; sixty-seven "
-    "is \"sixty\" plus seven; and sixty-nine is simply \"sixty\" plus nine.",
-    lang="en"))
-
-# "After 20, numbers such as 25, 50, 75, and 100 follow. So long as 1 "
-# # "knows the core number, or the number situated in the 10 or 100 "
-# # "position that determines the general amount, understanding these more "
-# # "complicated numbers won't be difficult. For example 33 is simply "
-# # "\"30\" plus 3; 67 is \"60\" plus 7; and 69 is simply \"60\" plus 9."
+from src.numeral_converter import (
+    numeral2int,
+    int2numeral,
+    int2numerals,
+    get_available_languages,
+    convert_numerical_in_text,
+    get_max_order
+)
 
 def test_numeral2int_simple():
     assert numeral2int('one', 'en') == 1
@@ -238,8 +217,10 @@ def test_int2numeral_several_numeral_forms():
 
 
 def test_int2numeral_unknown_number():
-    unknown_value = 10 ** (3 * 20)
-    msg = f"no data for number {unknown_value}"
+    max_order = get_max_order('uk')
+    unknown_value = 10 ** (max_order + 1)
+    msg = f"Numbers of order {max_order + 1} are not supported. " \
+          f'For language "uk", only numbers of order less than or equal to {max_order} are supported.'
     with pytest.raises(ValueError, match=msg):
         int2numeral(unknown_value, lang="uk", case=Case.NOMINATIVE, num_class=NumClass.CARDINAL)
 

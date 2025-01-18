@@ -4,7 +4,7 @@ from ...config import NUMERAL_CONVERTER_DATA_PATH
 from .numeral_entry import NumeralEntry, Case, Gender, NumClass, Number
 from .numeral_data import NumeralData
 from ...numeral_preprocessor import preprocess_number_string
-from .utils import transform_to_morph_form
+from ...utils import transform_to_morph_form
 
 
 class NumeralDataLoader:
@@ -31,24 +31,16 @@ class NumeralDataLoader:
         processes the data, and stores the numerical entries in a dictionary.
         """
         if not self.is_available_language(lang):
-            raise ValueError(f"Language '{lang}' is not available.")
+            raise ValueError(
+                f'The specified language "{lang}" is not supported. '
+                f'Please select one of the following: {", ".join(self.get_available_languages())}')
 
-        # Path to the language data CSV file
         filename = NUMERAL_CONVERTER_DATA_PATH / f'{lang}.csv'
-
-        try:
-            # Load the data from the CSV file into a pandas DataFrame
-            df = pd.read_csv(filename, sep=",", dtype={'order': int})
-        except FileNotFoundError:
-            raise ValueError(f"Data file for language '{lang}' not found.")
-
-        # Replace NaN with None for all columns to ensure consistency
+        df = pd.read_csv(filename, sep=",", dtype={'order': int})
         df = df.applymap(lambda x: None if pd.isnull(x) else x)
 
         numeral_data = NumeralData()
-
         for i, row in df.iterrows():
-
             num_class = transform_to_morph_form(row.get('num_class'), NumClass)
             case = transform_to_morph_form(row.get('case'), Case)
             gender = transform_to_morph_form(row.get('gender'), Gender)
@@ -86,7 +78,6 @@ class NumeralDataLoader:
         once and then cached for future calls.
         """
         if not self.__loaded_languages_cache:
-            # Read all CSV filenames and extract the language codes (file names without extension)
             self.__loaded_languages_cache = [filename.stem for filename in NUMERAL_CONVERTER_DATA_PATH.glob('*.csv')]
 
         return self.__loaded_languages_cache

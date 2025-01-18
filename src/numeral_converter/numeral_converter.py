@@ -1,5 +1,6 @@
 import logging
-from typing import Optional
+from typing import Optional, Dict, Any
+import math
 
 from .numeral_data_collector.numeral_data_loader.numeral_entry import Case, Gender, Number, NumClass
 from .numeral_converter_helpers import (
@@ -8,7 +9,8 @@ from .numeral_converter_helpers import (
     _number_items2int,
     _number_items2numeral
 )
-from .numeral_converter_loader import _get_language_data
+from .numeral_converter_loader import _get_language_data, get_max_numeral_word_number, get_max_order
+from .config import MAX_NUMERAL_LENGTH
 
 
 logger = logging.getLogger(__name__)
@@ -31,6 +33,20 @@ def numeral2int(numeral: str, lang: str, multi_threaded: bool = True) -> Optiona
     """
     language_data = _get_language_data(lang)
 
+    length = len(numeral)
+    if length > MAX_NUMERAL_LENGTH:
+        raise ValueError(
+            f'too long numeral; '
+            f'expected numeral with less than {MAX_NUMERAL_LENGTH} symbols; got {length}.')
+
+    words_number = len(numeral.split())
+    max_order = get_max_order(lang)
+    max_words_number = get_max_numeral_word_number(lang)
+    if words_number > max_words_number:
+        raise ValueError(
+            f'For language "{lang}", only numbers of order less than or equal to "{max_order}" are supported; '
+            f'expected numeral with less than {max_words_number} words.')
+
     logger.info(f"Converting numeral '{numeral}' to integer in language '{lang}'")
 
     number_items = _numeral2number_items(
@@ -40,10 +56,6 @@ def numeral2int(numeral: str, lang: str, multi_threaded: bool = True) -> Optiona
         multi_threaded=multi_threaded
     )
     value = _number_items2int(number_items=number_items)
-    if value is not None:
-        logger.debug(f"Conversion successful: {numeral} -> {value}")
-    else:
-        logger.error(f"Failed to convert numeral: {numeral}")
     return value
 
 
@@ -72,22 +84,7 @@ def int2numeral(
         >>> int2numeral(42, lang='uk', case="nominative", num_class="cardinal")
         'сорок два'
     """
-    logger.info(f"Converting integer '{value}' to numeral in language '{lang}'")
-    language_data = _get_language_data(lang)
-    number_items = _int2number_items(value, lang)
-
-    numeral = _number_items2numeral(
-        number_items,
-        lang=lang,
-        numeral_data=language_data.numeral_data,
-        value_index=language_data.value_index,
-        case=Case(case) if case else None,
-        num_class=NumClass(num_class) if num_class else None,
-        gender=Gender(gender) if gender else None,
-        number=Number(number) if number else None
-    )
-
-    logger.debug(f"Converted integer {value} to numeral: {numeral}")
+    numeral = __int2numerals(value, lang, case, num_class, gender, number)
     return numeral['numeral']
 
 
@@ -116,12 +113,33 @@ def int2numerals(
         >>> int2numeral(42, lang='uk', case="nominative", num_class="cardinal")
         'сорок два'
     """
-    logger.info(f"Converting integer '{value}' to numeral in language '{lang}'")
+    numeral = __int2numerals(value, lang, case, num_class, gender, number)
+    return numeral['numeral_forms']
+
+
+def __int2numerals(
+        value: int,
+        lang: str,
+        case: Optional[Case] = None,
+        num_class: Optional[NumClass] = None,
+        gender: Optional[Gender] = None,
+        number: Optional[Number] = None) -> Dict[str, any]:
+
     language_data = _get_language_data(lang)
-    numeral_items = _int2number_items(value, lang)
+
+    if value != 0:
+        order = int(round(math.log(value, 10)))
+        max_order = get_max_order(lang)
+
+        if order > max_order:
+            raise ValueError(
+                f'Numbers of order {order} are not supported. '
+                f'For language "{lang}", only numbers of order less than or equal to {max_order} are supported.')
+
+    number_items = _int2number_items(value, lang)
 
     numeral = _number_items2numeral(
-        numeral_items,
+        number_items,
         lang=lang,
         numeral_data=language_data.numeral_data,
         value_index=language_data.value_index,
@@ -131,5 +149,4 @@ def int2numerals(
         number=Number(number) if number else None
     )
 
-    logger.debug(f"Converted integer {value} to numeral: {numeral}")
-    return numeral['numeral_forms']
+    return numeral
