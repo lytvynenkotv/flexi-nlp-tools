@@ -9,9 +9,10 @@ from ..flexi_trie import FlexiTrie, FlexiTrieNode, FlexiTrieTraverser
 from .fuzzy_search_result import FuzzySearchResult
 from .correction_detail import CorrectionDetail
 from .correction import Correction
-
+from ..config import MAX_QUEUE_SIZE
 
 logger = logging.getLogger(__name__)
+
 
 
 @dataclass
@@ -92,6 +93,7 @@ class SearchEngine:
         queue.append(SearchState(0, "", trie.root, []))
 
         iteration = 0
+
         while queue:
             iteration += 1
             logger.info(f"Iteration {iteration}: {len(queue)} states in the queue.")
@@ -130,6 +132,11 @@ class SearchEngine:
                         path=step.path + query[step.position: step.position + i + 1],
                         node=node,
                         corrections=step.corrections))
+                    if len(updated_queue) > MAX_QUEUE_SIZE:
+                        break
+                if len(updated_queue) >= MAX_QUEUE_SIZE:
+                    queue = updated_queue[:MAX_QUEUE_SIZE]
+                    continue
 
                 current_correction_rate = (len(step.corrections) + 1) / len(query)
                 if current_correction_rate <= max_correction_rate:
@@ -140,6 +147,11 @@ class SearchEngine:
                                 visited_status[step.node.idx] = 0
                                 logger.debug(f"Correction loopback detected for node ID {step.node.idx}. Marked for revisit.")
                         updated_queue.extend(corrections_states)
+                        if len(updated_queue) > MAX_QUEUE_SIZE:
+                            break
+            if len(updated_queue) >= MAX_QUEUE_SIZE:
+                queue = updated_queue[:MAX_QUEUE_SIZE]
+                continue
 
             if not updated_queue:
                 logger.info("No items left in queue. Search completed.")

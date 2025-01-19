@@ -2451,6 +2451,13 @@ def test_numeral2int_02():
     assert numeral2int(numeral, lang="uk") == 5
 
 
+def test_numeral2int_03():
+    numeral = "пятxxxxxxxxxx"
+    msg = 'Cannot convert "пятxxxxxxxxxx" to integer'
+    with pytest.raises(ValueError, match=msg):
+        numeral2int(numeral, lang="uk")
+
+
 def test_convert_numerical_in_text_02():
     numeral = "пять"
     assert convert_numerical_in_text(numeral, lang="uk") == '5'
