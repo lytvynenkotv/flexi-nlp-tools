@@ -8,6 +8,7 @@ def convert_numerical_in_text(
     text: str,
     lang: str,
     max_correction_rate: Optional[int] = .3,
+    # multi_threaded: bool = True
 ) -> str:
     """
     Converts numerical string in text into integer values
@@ -32,6 +33,9 @@ def convert_numerical_in_text(
     "У моєму портфелі лежало 4 книги."
 
     """
+    # if multi_threaded:
+    #     return _convert_numerical_in_text_multi_threaded(text, lang, max_correction_rate)
+
     lang_data = _get_language_data(lang)
 
     updated_text = str()
@@ -68,7 +72,7 @@ def convert_numerical_in_text(
             # prev number ends, new number starts
             else:
                 updated_text += str(_number_items2int(number_items))
-                updated_text += text[i : match.span()[0]]
+                updated_text += text[i: match.span()[0]]
                 number_items = [
                     number_item,
                 ]

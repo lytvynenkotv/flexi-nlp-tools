@@ -12,6 +12,7 @@ class NumeralData(Dict[int, NumeralEntry]):
     is_available_gender: bool = False
     is_available_number: bool = False
     is_available_num_class: bool = False
+
     def __setitem__(self, idx: int, numeral_entry: NumeralEntry):
 
         super().__setitem__(idx, numeral_entry)

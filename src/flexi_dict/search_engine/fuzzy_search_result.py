@@ -27,3 +27,10 @@ class FuzzySearchResult:
         Calculates the total correction price after the object is initialized.
         """
         self.total_corrections_price = get_total_corrections_price(self.corrections)
+
+    def add_correction(self, correction: CorrectionDetail):
+        self.corrections.append(correction)
+        self.total_corrections_price = get_total_corrections_price(self.corrections)
+
+    def set_total_correction_price(self, value: float):
+        self.total_corrections_price = value

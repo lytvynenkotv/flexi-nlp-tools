@@ -11,6 +11,7 @@ from .numeral_converter_helpers import (
 )
 from .numeral_converter_loader import _get_language_data, get_max_numeral_word_number, get_max_order
 from .config import MAX_NUMERAL_LENGTH
+from .utils import transform_to_morph_form
 
 
 logger = logging.getLogger(__name__)
@@ -143,10 +144,10 @@ def __int2numerals(
         lang=lang,
         numeral_data=language_data.numeral_data,
         value_index=language_data.value_index,
-        case=Case(case) if case else None,
-        num_class=NumClass(num_class) if num_class else None,
-        gender=Gender(gender) if gender else None,
-        number=Number(number) if number else None
+        case=transform_to_morph_form(case, Case),
+        num_class=transform_to_morph_form(num_class, NumClass),
+        gender=transform_to_morph_form(gender, Gender),
+        number=transform_to_morph_form(number, Number)
     )
 
     return numeral

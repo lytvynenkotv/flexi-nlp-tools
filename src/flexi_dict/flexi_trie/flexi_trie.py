@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Optional, Set, Dict
+from typing import Optional, Set, Dict, Union
 
 
 class FlexiTrie:
@@ -105,7 +105,7 @@ class FlexiTrieNode:
         self._idx = self._trie.node_count
         self._trie.inc_node_count()
         self.children: OrderedDict[str, 'FlexiTrieNode'] = OrderedDict()
-        self.values: Set[int] = set()
+        self.values: Set[Union[int, str]] = set()
 
     def add_child(self, key: str, symbol_weights: Optional[Dict[str, float]] = None) -> 'FlexiTrieNode':
         """

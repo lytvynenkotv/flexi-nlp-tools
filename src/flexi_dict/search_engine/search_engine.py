@@ -8,11 +8,10 @@ from ..config import DEFAULT_TOPN_LEAVES, MAX_CORRECTION_RATE
 from ..flexi_trie import FlexiTrie, FlexiTrieNode, FlexiTrieTraverser
 from .fuzzy_search_result import FuzzySearchResult
 from .correction_detail import CorrectionDetail
-from .correction import Correction
+from .correction import Correction, SymbolInsertion, SymbolsDeletion, SymbolSubstitution, SymbolsTransposition
 from ..config import MAX_QUEUE_SIZE
 
 logger = logging.getLogger(__name__)
-
 
 
 @dataclass
@@ -32,7 +31,7 @@ class SearchEngine:
         _corrections (List[Correction]): List of correction strategies to apply during the search.
     """
 
-    def __init__(self, corrections: List[Correction], symbol_insertion: Correction):
+    def __init__(self, corrections: Optional[List[Correction]] = None, symbol_insertion: Optional[Correction] = None):
         """
         Initializes the SearchEngine with a list of corrections.
 
@@ -40,8 +39,8 @@ class SearchEngine:
             corrections (List[Correction]): List of correction strategies.
         """
         self._trie_traverser = FlexiTrieTraverser()
-        self._corrections = corrections
-        self._symbol_insertion = symbol_insertion
+        self._corrections = corrections or [SymbolInsertion(), SymbolsDeletion(), SymbolSubstitution(), SymbolsTransposition()]
+        self._symbol_insertion = symbol_insertion or SymbolInsertion()
 
     def search(
             self, trie: FlexiTrie, query: str,

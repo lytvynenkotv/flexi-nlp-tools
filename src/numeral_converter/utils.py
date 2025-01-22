@@ -18,7 +18,15 @@ def transform_to_morph_form(input_string: str, morph_class: Type[MorphForm]) -> 
     if not input_string:
         return None
 
+    if isinstance(input_string, morph_class):
+        return input_string
+
+
+
+
     try:
+        if isinstance(input_string, str):
+            input_string = input_string.lower()
         value = morph_class(input_string)
     except KeyError:
         raise ValueError(

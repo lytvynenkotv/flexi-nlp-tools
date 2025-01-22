@@ -48,6 +48,20 @@ def test_init(search_engine_mock):
     assert d.trie.root['a']['b'].idx == 2
     assert d.trie.root['a']['b']['c'].idx == 3
 
+    assert d['abc'] == 2
+
+
+def test_init_with_str_idx(search_engine_mock):
+    d = FlexiDict(search_engine_mock)
+    d['abc'] = '2'
+
+    assert d.trie.root.idx == 0
+    assert d.trie.root['a'].idx == 1
+    assert d.trie.root['a']['b'].idx == 2
+    assert d.trie.root['a']['b']['c'].idx == 3
+
+    assert d['abc'] == '2'
+
 
 def test_setitem(search_engine_mock):
     d = FlexiDict(search_engine_mock)
@@ -368,3 +382,6 @@ def test_save_load(search_engine_for_getitem, tmp_path):
     assert d_loaded["first"] == 1
 
 
+def test_optional_init():
+    flexi_dict = FlexiDict()
+    assert isinstance(flexi_dict, FlexiDict)

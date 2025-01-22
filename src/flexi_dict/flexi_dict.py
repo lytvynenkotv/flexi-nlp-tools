@@ -1,10 +1,11 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 import dill
 
 from .config import MAX_CORRECTION_RATE
 
 from .utils import validate_symbol_weights
 from .search_engine import SearchEngine
+from .search_engine.fuzzy_search_result import FuzzySearchResult
 from .flexi_trie import FlexiTrie
 
 
@@ -16,7 +17,7 @@ class FlexiDict:
 
     def __init__(
         self,
-        search_engine: SearchEngine,
+        search_engine: Optional[SearchEngine] = None,
         symbol_weights: Optional[Dict[str, float]] = None,
     ):
 
@@ -25,9 +26,9 @@ class FlexiDict:
         validate_symbol_weights(symbol_weights)
         self._symbol_weights = symbol_weights
 
-        self._search_engine = search_engine
+        self._search_engine = search_engine or SearchEngine()
 
-    def __setitem__(self, keyname: str, value_id: int):
+    def __setitem__(self, keyname: str, value_id: Union[int, str]):
         """
         Adds a value to the prefix tree under the specified key.
 
@@ -38,7 +39,7 @@ class FlexiDict:
         """
         self._trie.add(keyname, value_id, self._symbol_weights)
 
-    def __getitem__(self, query: str) -> Optional[int]:
+    def __getitem__(self, query: str) -> Optional[Union[str, int]]:
         """
         Retrieves the first value associated with the specified key.
 
@@ -62,7 +63,7 @@ class FlexiDict:
 
         return None
 
-    def get(self, query: str, max_correction_rate: Optional[float] = None) -> List[int]:
+    def get(self, query: str, max_correction_rate: Optional[float] = None) -> List[Union[str, int]]:
 
         if max_correction_rate is None:
             max_correction_rate = MAX_CORRECTION_RATE
@@ -73,17 +74,31 @@ class FlexiDict:
             max_correction_rate=max_correction_rate)
         return [item.value for item in fuzzy_match_items]
 
-    def search(self, query: str, max_correction_rate: Optional[float] = None) -> List[int]:
+    def search(
+            self,
+            query: str,
+            max_correction_rate: Optional[float] = None,
+            max_correction_rate_for_leaves: Optional[float] = 1.
+    ) -> List[Union[str, int]]:
+        return [
+            item.value
+            for item in self.search_internal(
+                query, max_correction_rate, max_correction_rate_for_leaves)]
 
-        if max_correction_rate is None:
-            max_correction_rate = MAX_CORRECTION_RATE
+    def search_internal(
+            self,
+            query: str,
+            max_correction_rate: Optional[float] = None,
+            max_correction_rate_for_leaves: Optional[float] = 1.) -> List[FuzzySearchResult]:
 
         fuzzy_match_items = self._search_engine.search(
             trie=self.trie,
             query=query,
             max_correction_rate=max_correction_rate,
-            max_correction_rate_for_leaves=1.)
-        return [item.value for item in fuzzy_match_items]
+            max_correction_rate_for_leaves=max_correction_rate_for_leaves
+        )
+
+        return fuzzy_match_items
 
     @property
     def trie(self):
