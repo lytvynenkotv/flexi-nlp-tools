@@ -10,7 +10,8 @@ A natural language processing toolkit based on the flexi-dict data structure, de
 1. [Tools](#tools)
     - [Numeral Converter](#numeral-converter)
     - [Lite Search](#lite-search)
-3. [Installation](#installation)
+2. [Installation](#installation)
+3. [Demo](#demo)
 4. [License](#license)
 
 ---
@@ -257,6 +258,14 @@ You can easily install `flexi-nlp-tools` from PyPI using `pip`:
 ```bash
 pip install flexi-nlp-tools
 ```
+
+---
+
+## Demo
+
+Check out the live demo of Flexi NLP Tools here:
+
+[Flexi NLP Tools Demo](https://flexi-nlp-tools-8825f3a8045e.herokuapp.com/)
 
 ---
 

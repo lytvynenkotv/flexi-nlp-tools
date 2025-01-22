@@ -18,7 +18,8 @@ setup(
         "pandas>=2.2.3,<2.3",
         "g2p_en>=2.1.0, <2.2",
         "transliterate>=1.10.2, <1.11",
-        "nltk>=3.9.1, <3.10"
+        "nltk>=3.9.1, <3.10",
+        "certifi"
     ],
     python_requires=">=3.11",
     classifiers=[

@@ -37,7 +37,7 @@ class NumeralDataLoader:
 
         filename = NUMERAL_CONVERTER_DATA_PATH / f'{lang}.csv'
         df = pd.read_csv(filename, sep=",", dtype={'order': int})
-        df = df.applymap(lambda x: None if pd.isnull(x) else x)
+        df = df.apply(lambda col: col.map(lambda x: None if pd.isnull(x) else x))
 
         numeral_data = NumeralData()
         for i, row in df.iterrows():
