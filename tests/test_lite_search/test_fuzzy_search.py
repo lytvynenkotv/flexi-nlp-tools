@@ -188,3 +188,24 @@ def test_index_search_07() -> None:
     query = 'болло'
     result = fuzzy_search(query=query, search_index=search_index)
     assert {1, 2}.issubset(result)
+
+
+def test_index_search_08() -> None:
+    data = [
+        (1, "Jerry Fox"),
+        (2, "Kerry Fox"),
+        (3, "Perri Fox"),
+        (4, "Stieve Perry"),
+        (5, "Stieve Perri"),
+        (6, "Jerry Smith"),
+        (7, "Larry Smith"),
+    ]
+    search_index = build_search_index(data)
+
+    query = 'perry'
+    result = fuzzy_search_internal(query=query, search_index=search_index)
+    assert result[0].value == 4
+
+    query = 'perri'
+    result = fuzzy_search_internal(query=query, search_index=search_index)
+    assert result[0].value == 3

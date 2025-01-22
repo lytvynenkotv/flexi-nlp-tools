@@ -66,7 +66,7 @@ def __update_total_corrections_price(
 ):
     total_corrections_price = item.total_corrections_price
     if rate:
-        total_corrections_price = (1 + query_transformation_price ** (1 / rate))
+        total_corrections_price += query_transformation_price
         total_corrections_price += 1e-5 * __get_path_key_dist(item.path, item.key, query)
 
     return total_corrections_price
