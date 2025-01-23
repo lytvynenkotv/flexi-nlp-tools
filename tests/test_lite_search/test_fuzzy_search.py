@@ -1,4 +1,4 @@
-from lite_search import fuzzy_search, fuzzy_search_internal, build_search_index
+from src.lite_search import fuzzy_search, fuzzy_search_internal, build_search_index
 
 
 def test_fuzzy_search_01():

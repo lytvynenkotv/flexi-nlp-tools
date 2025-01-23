@@ -31,32 +31,35 @@ def fuzzy_search_internal(
 ):
     search_result = list()
     added = set()
-    try:
-        for rate in sorted(search_index):
-            rate_search_result = search_index[rate].search_internal(
-                query=query,
-                max_correction_rate=.6,
-                max_correction_rate_for_leaves=1.
-            )
-            for item in rate_search_result:
 
-                if item.value in added:
-                    continue
+    for rate in sorted(search_index):
+        n = 0
+        rate_search_result = search_index[rate].search_internal(
+            query=query,
+            max_correction_rate=.6,
+            max_correction_rate_for_leaves=1.
+        )
+        for item in rate_search_result:
 
-                added.add(item.value)
-                if rate:
-                    total_correction_price = __update_total_corrections_price(
-                        item=item, rate=rate, query=query, query_transformation_price=query_transformation_price)
-                    item.set_total_correction_price(total_correction_price)
+            if item.value in added:
+                continue
 
-                pos = bisect.bisect_left(
-                    search_result, item.total_corrections_price, lo=0, hi=len(search_result),
-                    key=lambda x: x.total_corrections_price)
-                search_result.insert(pos, item)
-                if topn and len(search_result) > topn:
-                    raise StopIteration
-    except StopIteration:
-        pass
+            added.add(item.value)
+            if rate:
+                total_correction_price = __update_total_corrections_price(
+                    item=item, rate=rate, query=query, query_transformation_price=query_transformation_price)
+                item.set_total_correction_price(total_correction_price)
+
+            pos = bisect.bisect_left(
+                search_result, item.total_corrections_price, lo=0, hi=len(search_result),
+                key=lambda x: x.total_corrections_price)
+            search_result.insert(pos, item)
+            n += 1
+            if topn and n > topn:
+                break
+
+    if search_result:
+        return search_result[:topn]
 
     return search_result
 
