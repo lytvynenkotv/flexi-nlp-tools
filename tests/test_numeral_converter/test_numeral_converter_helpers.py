@@ -1,8 +1,13 @@
 import pytest
 
-from src.numeral_converter.numeral_data_collector.numeral_data_loader.numeral_entry import Case, NumClass, Gender, Number
-from src.numeral_converter.numeral_converter_loader import _get_language_data
-from src.numeral_converter.numeral_converter_helpers import (
+from flexi_nlp_tools.numeral_converter.numeral_data_collector.numeral_data_loader.numeral_entry import (
+    Case,
+    NumClass,
+    Gender,
+    Number
+)
+from flexi_nlp_tools.numeral_converter.numeral_converter_loader import _get_language_data
+from flexi_nlp_tools.numeral_converter.numeral_converter_helpers import (
     __get_combinations,
     __int2numeral_word,
     _numeral2number_items,

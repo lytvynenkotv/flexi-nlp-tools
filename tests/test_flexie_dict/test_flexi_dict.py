@@ -2,14 +2,15 @@ import pytest
 from unittest.mock import Mock
 
 
-from src.flexi_dict import FlexiDict
-from src.flexi_dict import SearchEngine
-from src.flexi_dict.search_engine.correction import (
+from flexi_nlp_tools.flexi_dict import FlexiDict
+from flexi_nlp_tools.flexi_dict import SearchEngine
+from flexi_nlp_tools.flexi_dict.search_engine import (
     SymbolInsertion,
     SymbolsTransposition,
     SymbolsDeletion,
     SymbolSubstitution
 )
+from flexi_nlp_tools.flexi_dict import calculate_symbols_distances, calculate_symbols_weights
 
 
 @pytest.fixture
@@ -346,7 +347,8 @@ def test_search_with_diff_string_size(search_engine_for_search):
     assert d.search("apl") == [6, 5, 4, 3, 2, 1]
 
 
-def test_search():
+def test_search_01():
+
 
     corrections = [
         SymbolInsertion(),
@@ -354,6 +356,7 @@ def test_search():
         SymbolsDeletion(),
         SymbolSubstitution()
     ]
+
     search_engine = SearchEngine(corrections, SymbolInsertion(price=.01))
     d = FlexiDict(search_engine)
 
@@ -366,6 +369,34 @@ def test_search():
 
     assert d.search("apple g")[:2] == [3, 1]
     assert d.search("apple f")[0] == 6
+
+
+def test_search_02():
+
+    keyboards = [
+        """'`1234567890-=
+  qwertyuiop[]
+  asdfghjkl;'
+   zxcvbnm,./"""]
+    symbols_distance = calculate_symbols_distances(symbol_keyboards=keyboards)
+
+    corpus = ["jerry", 'kerry', 'perry', 'larry']
+    symbol_weights = calculate_symbols_weights(corpus)
+
+    corrections = [
+        SymbolInsertion(symbol_weights=symbol_weights, symbols_distances=symbols_distance),
+        SymbolsTransposition(symbol_weights=symbol_weights, symbols_distances=symbols_distance),
+        SymbolsDeletion(symbol_weights=symbol_weights, symbols_distances=symbols_distance),
+        SymbolSubstitution(symbol_weights=symbol_weights, symbols_distances=symbols_distance)
+    ]
+    search_engine = SearchEngine(corrections, symbol_insertion=SymbolInsertion(price=.01))
+    d = FlexiDict(search_engine, symbol_weights=symbol_weights)
+
+    d["jerry"] = 1
+    d["kerry"] = 2
+    d["perry"] = 2
+
+    assert d.search("larry")[0] == 2
 
 
 def test_save_load(search_engine_for_getitem, tmp_path):

@@ -1,8 +1,8 @@
 import pytest
 from unittest.mock import Mock
 
-from src.flexi_dict.flexi_trie import FlexiTrieTraverser
-from src.flexi_dict import FlexiDict
+from flexi_nlp_tools.flexi_dict.flexi_trie.flexi_trie_traverser import FlexiTrieTraverser
+from flexi_nlp_tools.flexi_dict import FlexiDict
 
 
 @pytest.fixture

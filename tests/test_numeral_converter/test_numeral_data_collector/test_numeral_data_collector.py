@@ -1,7 +1,7 @@
 import pytest
 
-from src.numeral_converter.numeral_data_collector import NumeralDataCollector
-from src.numeral_converter.numeral_data_collector.numeral_data_loader.numeral_entry import NumeralEntry
+from flexi_nlp_tools.numeral_converter.numeral_data_collector import NumeralDataCollector
+from flexi_nlp_tools.numeral_converter.numeral_data_collector.numeral_data_loader.numeral_entry import NumeralEntry
 
 
 @pytest.fixture

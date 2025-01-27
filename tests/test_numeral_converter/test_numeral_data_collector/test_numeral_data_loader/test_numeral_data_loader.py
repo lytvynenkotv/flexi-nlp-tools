@@ -1,7 +1,7 @@
 import pytest
 
-from src.numeral_converter.numeral_data_collector.numeral_data_loader import NumeralDataLoader
-from src.numeral_converter.numeral_data_collector.numeral_data_loader.numeral_entry import (
+from flexi_nlp_tools.numeral_converter.numeral_data_collector.numeral_data_loader import NumeralDataLoader
+from flexi_nlp_tools.numeral_converter.numeral_data_collector.numeral_data_loader.numeral_entry import (
     Number, NumClass, Gender, Case
 )
 

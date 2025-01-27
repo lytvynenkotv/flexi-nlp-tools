@@ -1,4 +1,4 @@
-from src.numeral_converter.numeral_preprocessor import preprocess_numeral, preprocess_number_string  # Импортируйте функции
+from flexi_nlp_tools.numeral_converter.numeral_preprocessor import preprocess_numeral, preprocess_number_string  # Импортируйте функции
 
 
 def test_preprocess_numeral_en():

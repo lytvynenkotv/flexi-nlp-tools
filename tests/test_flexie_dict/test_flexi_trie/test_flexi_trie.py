@@ -1,4 +1,4 @@
-from src.flexi_dict.flexi_trie import FlexiTrie
+from flexi_nlp_tools.flexi_dict.flexi_trie import FlexiTrie
 
 
 def test_init():

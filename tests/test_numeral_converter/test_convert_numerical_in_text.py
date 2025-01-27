@@ -1,4 +1,4 @@
-from src.numeral_converter import convert_numerical_in_text
+from flexi_nlp_tools.numeral_converter import convert_numerical_in_text
 
 
 def test_convert_numerical_in_text_01():

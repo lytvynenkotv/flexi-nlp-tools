@@ -1,14 +1,19 @@
 import pytest
 
-from src.numeral_converter.numeral_data_collector.numeral_data_loader.numeral_entry import NumClass, Gender, Number, Case
-from src.numeral_converter import (
+from flexi_nlp_tools.numeral_converter.numeral_data_collector.numeral_data_loader.numeral_entry import (
+    NumClass,
+    Gender,
+    Number,
+    Case
+)
+from flexi_nlp_tools.numeral_converter import (
     numeral2int,
     int2numeral,
     int2numerals,
-    get_available_languages,
     convert_numerical_in_text,
     get_max_order
 )
+
 
 def test_numeral2int_simple():
     assert numeral2int('one', 'en') == 1

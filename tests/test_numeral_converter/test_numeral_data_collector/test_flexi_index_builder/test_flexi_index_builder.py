@@ -1,11 +1,9 @@
 from unittest.mock import Mock
 
-from src.numeral_converter.numeral_data_collector.flexi_index_builder import FlexiIndexBuilder
-from src.numeral_converter.numeral_data_collector.numeral_data_loader import NumeralDataLoader
+from flexi_nlp_tools.numeral_converter.numeral_data_collector.flexi_index_builder import FlexiIndexBuilder
+from flexi_nlp_tools.numeral_converter.numeral_data_collector.numeral_data_loader import NumeralDataLoader
 
 import pytest
-
-
 
 
 @pytest.fixture
