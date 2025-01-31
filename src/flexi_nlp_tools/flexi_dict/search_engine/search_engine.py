@@ -1,6 +1,6 @@
 import logging
 import bisect
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass
 
 from ..flexi_trie import FlexiTrie, FlexiTrieNode, FlexiTrieTraverser
@@ -8,7 +8,7 @@ from .fuzzy_search_result import FuzzySearchResult
 from .correction_detail import CorrectionDetail
 from .correction import Correction, SymbolInsertion, SymbolsDeletion, SymbolSubstitution, SymbolsTransposition
 from ..config import DEFAULT_TOPN_LEAVES, MAX_QUEUE_SIZE, MAX_CORRECTION_RATE
-
+from ..validators import validate_symbol_weights, validate_symbols_distances
 logger = logging.getLogger(__name__)
 
 
@@ -33,6 +33,8 @@ class SearchEngine:
             self,
             corrections: Optional[List[Correction]] = None,
             symbol_insertion: Optional[Correction] = None,
+            symbol_weights: Optional[Dict[str, float]] = None,
+            symbols_distances: Optional[Dict[Tuple[str, str], float]] = None
     ):
         """
         Initializes the SearchEngine with a list of corrections.
@@ -43,6 +45,11 @@ class SearchEngine:
         self._trie_traverser = FlexiTrieTraverser()
         self._corrections = corrections or [SymbolInsertion(), SymbolsDeletion(), SymbolSubstitution(), SymbolsTransposition()]
         self._symbol_insertion = symbol_insertion or SymbolInsertion()
+
+        validate_symbol_weights(symbol_weights)
+        validate_symbols_distances(symbols_distances)
+        self._symbol_weights = symbol_weights
+        self._symbols_distances = symbols_distances
 
     def search(
             self, trie: FlexiTrie, query: str,
@@ -90,6 +97,7 @@ class SearchEngine:
 
             if trie.find(query):
                 return search_result
+
         queue = [SearchState(position + 1, query[:position + 1], node, []) for position, node in enumerate(path_nodes)]
         queue.append(SearchState(0, "", trie.root, []))
 
@@ -101,6 +109,7 @@ class SearchEngine:
             updated_queue = []
 
             for step in queue:
+
                 logger.debug(f"Processing node ID {step.node.idx} at position {step.position}, path='{step.path}', corrections={[c.correction_name for c in step.corrections]}")
 
                 if step.position == len(query):
@@ -127,14 +136,24 @@ class SearchEngine:
                 visited_status[step.node.idx] = 1
 
                 nodes_ids_path = self._trie_traverser.apply_string(step.node, query[step.position:])
+
                 for i, node in enumerate(nodes_ids_path):
-                    updated_queue.append(SearchState(
+
+                    total_step_price = sum([x.price for x in step.corrections])
+                    pos = bisect.bisect_left(
+                        updated_queue, total_step_price,
+                        lo=0, hi=len(updated_queue),
+                        key=lambda x: sum([x.price for x in x.corrections]))
+
+                    updated_queue.insert(pos, SearchState(
                         position=step.position + i + 1,
                         path=step.path + query[step.position: step.position + i + 1],
                         node=node,
                         corrections=step.corrections))
+
                     if len(updated_queue) > MAX_QUEUE_SIZE:
                         break
+
                 if len(updated_queue) >= MAX_QUEUE_SIZE:
                     queue = updated_queue[:MAX_QUEUE_SIZE]
                     continue
@@ -142,14 +161,28 @@ class SearchEngine:
                 current_correction_rate = (len(step.corrections) + 1) / len(query)
                 if current_correction_rate <= max_correction_rate:
                     for correction in self._corrections:
-                        corrections_states = correction.apply(query=query, search_state=step)
+                        corrections_states = correction.apply(
+                            query=query,
+                            search_state=step,
+                            symbol_weights=self._symbol_weights,
+                            symbols_distances=self._symbols_distances)
+
                         for correction_state in corrections_states:
                             if correction_state.node.idx == step.node.idx:
                                 visited_status[step.node.idx] = 0
                                 logger.debug(f"Correction loopback detected for node ID {step.node.idx}. Marked for revisit.")
-                        updated_queue.extend(corrections_states)
+
+                            total_step_price = sum([x.price for x in correction_state.corrections])
+                            pos = bisect.bisect_left(
+                                updated_queue, total_step_price,
+                                lo=0, hi=len(updated_queue),
+                                key=lambda x: sum([x.price for x in x.corrections]))
+
+                            updated_queue.insert(pos, correction_state)
+
                         if len(updated_queue) > MAX_QUEUE_SIZE:
                             break
+
             if len(updated_queue) >= MAX_QUEUE_SIZE:
                 queue = updated_queue[:MAX_QUEUE_SIZE]
                 continue
@@ -236,3 +269,7 @@ class SearchEngine:
 
         logger.debug(f"Generated {len(result)} results for node #{node.idx}.")
         return result
+
+    @property
+    def symbol_weights(self):
+        return self._symbol_weights

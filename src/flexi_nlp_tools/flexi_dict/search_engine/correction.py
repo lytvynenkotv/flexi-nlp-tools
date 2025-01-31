@@ -30,13 +30,8 @@ class Correction(ABC):
 
     _name: str
     _price: float
-    _symbols_distances: Optional[Dict[Tuple[str, str], float]] = None
-    _symbol_weights: Optional[Dict[str, float]] = None
 
-    def __init__(
-            self, price: float = 1,
-            symbol_weights: Optional[Dict[str, float]] = None,
-            symbols_distances: Optional[Dict[Tuple[str, str], float]] = None):
+    def __init__(self, price: float = 1):
         """
         Initializes the correction with the specified cost.
 
@@ -44,13 +39,14 @@ class Correction(ABC):
             price (float): The base cost of the correction. Default is 1.
         """
         self.set_price(price)
-        validate_symbol_weights(symbol_weights)
-        validate_symbols_distances(symbols_distances)
-        self._symbol_weights = symbol_weights
-        self._symbols_distances = symbols_distances
 
     @abstractmethod
-    def apply(self, query: str, search_state: SearchState) -> List[SearchState]:
+    def apply(
+            self,
+            query: str,
+            search_state: SearchState,
+            symbol_weights: Optional[Dict[str, float]] = None,
+            symbols_distances: Optional[Dict[Tuple[str, str], float]] = None) -> List[SearchState]:
         """
         Abstract method to apply the correction.
 
@@ -92,10 +88,6 @@ class Correction(ABC):
         """
         return self._price
 
-    @property
-    def symbol_weights(self) -> Dict[str, float]:
-        return self._symbol_weights
-
 
 class SymbolInsertion(Correction):
     """
@@ -105,7 +97,13 @@ class SymbolInsertion(Correction):
     _name: str = 'insertion'
     _price: float = DEFAULT_INSERTION_PRICE
 
-    def apply(self, query: str, search_state: SearchState) -> List[SearchState]:
+    def apply(
+            self,
+            query: str,
+            search_state: SearchState,
+            symbol_weights: Optional[Dict[str, float]] = None,
+            symbols_distances: Optional[Dict[Tuple[str, str], float]] = None
+    ) -> List[SearchState]:
         """
         Applies symbol insertion correction.
 
@@ -116,7 +114,7 @@ class SymbolInsertion(Correction):
         Returns:
             List[SearchState]: A list of new search states after applying symbol insertion.
         """
-        symbol_weights = self._symbol_weights or {}
+        symbol_weights = symbol_weights or {}
         next_symbol = query[search_state.position]
         result_search_states = []
 
@@ -155,7 +153,12 @@ class SymbolsTransposition(Correction):
     _name: str = 'transposition'
     _price: float = DEFAULT_TRANSPOSITION_PRICE
 
-    def apply(self, query: str, search_state: SearchState) -> List[SearchState]:
+    def apply(
+            self,
+            query: str,
+            search_state: SearchState,
+            symbol_weights: Optional[Dict[str, float]] = None,
+            symbols_distances: Optional[Dict[Tuple[str, str], float]] = None) -> List[SearchState]:
         """
         Applies symbol transposition correction.
 
@@ -169,7 +172,7 @@ class SymbolsTransposition(Correction):
         if len(query) <= search_state.position + 1:
             return []
 
-        symbols_distances = self._symbols_distances or {}
+        symbols_distances = symbols_distances or {}
 
         left_symbol, right_symbol = query[search_state.position], query[search_state.position + 1]
 
@@ -215,7 +218,12 @@ class SymbolsDeletion(Correction):
     _name: str = 'deletion'
     _price: float = DEFAULT_DELETION_PRICE
 
-    def apply(self, query: str, search_state: SearchState) -> List[SearchState]:
+    def apply(
+            self,
+            query: str,
+            search_state: SearchState,
+            symbol_weights: Optional[Dict[str, float]] = None,
+            symbols_distances: Optional[Dict[Tuple[str, str], float]] = None) -> List[SearchState]:
         """
         Applies symbol deletion correction.
 
@@ -229,7 +237,7 @@ class SymbolsDeletion(Correction):
         if search_state.position > 0 and query[search_state.position - 1] == query[search_state.position]:
             correction_price = MIN_CORRECTION_PRICE
         else:
-            symbol_weights = self._symbol_weights or {}
+            symbol_weights = symbol_weights or {}
             symbol_weight = symbol_weights.get(query[search_state.position], 0)
             correction_price = (self._price * (1 - symbol_weight)) ** 0.5
 
@@ -263,7 +271,12 @@ class SymbolSubstitution(Correction):
     _name: str = 'substitution'
     _price: float = DEFAULT_SUBSTITUTION_PRICE
 
-    def apply(self, query: str, search_state: SearchState) -> List[SearchState]:
+    def apply(
+            self,
+            query: str,
+            search_state: SearchState,
+            symbol_weights: Optional[Dict[str, float]] = None,
+            symbols_distances: Optional[Dict[Tuple[str, str], float]] = None) -> List[SearchState]:
         """
         Applies symbol substitution correction.
 
@@ -280,7 +293,7 @@ class SymbolSubstitution(Correction):
             if child_key == query[search_state.position]:
                 continue
 
-            symbols_distances = self._symbols_distances or {}
+            symbols_distances = symbols_distances or {}
             symbols_distance = symbols_distances.get((query[search_state.position], child_key), 1)
 
             correction_price = (self._price * symbols_distance) ** 0.5

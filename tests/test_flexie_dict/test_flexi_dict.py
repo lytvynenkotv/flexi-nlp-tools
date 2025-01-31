@@ -15,7 +15,7 @@ from flexi_nlp_tools.flexi_dict import calculate_symbols_distances, calculate_sy
 
 @pytest.fixture
 def search_engine_mock():
-    return Mock()
+    return Mock(symbol_weights=None)
 
 
 @pytest.fixture
@@ -79,14 +79,16 @@ def test_setitem(search_engine_mock):
     d['a'] = 3
 
 
-def test_setitem_with_symbol_weights(search_engine_mock):
+def test_setitem_with_symbol_weights():
 
+    search_engine_mock = Mock(symbol_weights=None)
     d = FlexiDict(search_engine_mock)
     d['a'] = 1
     d['b'] = 1
     assert list(d.trie.root.children.keys()) == ['a', 'b']
 
-    d = FlexiDict(symbol_weights={'a': 0, 'b': 1}, search_engine=search_engine_mock)
+    search_engine_mock = Mock(symbol_weights={'a': 0, 'b': 1})
+    d = FlexiDict(search_engine=search_engine_mock)
     d['a'] = 1
     d['b'] = 1
     assert list(d.trie.root.children.keys()) == ['b', 'a']
@@ -310,14 +312,18 @@ def test_unintuitive():
         ('а', 'с'): .01, ('с', 'а'): .01, ('ц', 'л'): 1, ('л', 'ц'): 1}
 
     corrections = [
-        SymbolInsertion(symbol_weights=symbol_weights),
-        SymbolsTransposition(symbols_distances=symbols_distances),
-        SymbolsDeletion(symbol_weights=symbol_weights),
-        SymbolSubstitution(symbol_weights=symbol_weights, symbols_distances=symbols_distances)
+        SymbolInsertion(),
+        SymbolsTransposition(),
+        SymbolsDeletion(),
+        SymbolSubstitution()
     ]
-    search_engine = SearchEngine(corrections, SymbolInsertion(symbol_weights=symbol_weights, price=.01))
+    search_engine = SearchEngine(
+        corrections=corrections,
+        symbol_insertion=SymbolInsertion(price=.01),
+        symbols_distances=symbols_distances,
+        symbol_weights=symbol_weights)
 
-    d = FlexiDict(search_engine=search_engine, symbol_weights=symbol_weights)
+    d = FlexiDict(search_engine=search_engine)
 
     d["специи"] = 1
     d["апельсин"] = 2
@@ -384,13 +390,18 @@ def test_search_02():
     symbol_weights = calculate_symbols_weights(corpus)
 
     corrections = [
-        SymbolInsertion(symbol_weights=symbol_weights, symbols_distances=symbols_distance),
-        SymbolsTransposition(symbol_weights=symbol_weights, symbols_distances=symbols_distance),
-        SymbolsDeletion(symbol_weights=symbol_weights, symbols_distances=symbols_distance),
-        SymbolSubstitution(symbol_weights=symbol_weights, symbols_distances=symbols_distance)
+        SymbolInsertion(),
+        SymbolsTransposition(),
+        SymbolsDeletion(),
+        SymbolSubstitution()
     ]
-    search_engine = SearchEngine(corrections, symbol_insertion=SymbolInsertion(price=.01))
-    d = FlexiDict(search_engine, symbol_weights=symbol_weights)
+    search_engine = SearchEngine(
+        corrections=corrections,
+        symbol_insertion=SymbolInsertion(price=.01),
+        symbol_weights=symbol_weights,
+        symbols_distances=symbols_distance
+    )
+    d = FlexiDict(search_engine)
 
     d["jerry"] = 1
     d["kerry"] = 2

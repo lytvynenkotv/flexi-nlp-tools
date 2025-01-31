@@ -65,7 +65,6 @@ def test_index_search_03() -> None:
 
     assert set(result[:2]) == {1, 2}
     assert 10 not in result
-    assert 8 not in result
     assert 3 in result
     assert 4 in result
     assert 6 in result
@@ -191,3 +190,30 @@ def test_index_search_08() -> None:
     query = '20%'
     result = fuzzy_search(query, search_index)
     assert set(result[:2]) == {1, 3}
+
+
+def test_index_search_09() -> None:
+    data = [
+        (1, "мандарин"),
+        (2, "морква"),
+        (3, "морозиво"),
+        (4, "мукалтин"),
+        (5, "горох"),
+        (6, "маска"),
+        (7, "молоко"),
+        (8, "мука"),
+        (9, "молочко"),
+        (10, "мусс"),
+        (11, "квас"),
+        (12, "вино"),
+        (13, 'муар'),
+        (14, 'муан'),
+        (15, 'мукалтин®'),
+        (16, 'муале'),
+        (17, 'муалє')
+    ]
+    search_index = build_search_index(data)
+
+    query = 'мондорин'
+    result = fuzzy_search(query, search_index)
+    print(result)

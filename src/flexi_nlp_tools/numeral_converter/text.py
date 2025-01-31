@@ -2,12 +2,13 @@ from typing import List, Optional
 from .numeral_converter_helpers import NumberItem, preprocess_numeral, _number_items2int
 from .numeral_converter_loader import _get_language_data
 from .patterns import WORD_PATTERN
+from .config import MAX_CORRECTION_RATE_FOR_TEXT
 
 
 def convert_numerical_in_text(
     text: str,
     lang: str,
-    max_correction_rate: Optional[int] = .3,
+    max_correction_rate: Optional[int] = None,
     # multi_threaded: bool = True
 ) -> str:
     """
@@ -35,6 +36,8 @@ def convert_numerical_in_text(
     """
     # if multi_threaded:
     #     return _convert_numerical_in_text_multi_threaded(text, lang, max_correction_rate)
+    if max_correction_rate is None:
+        max_correction_rate = MAX_CORRECTION_RATE_FOR_TEXT
 
     lang_data = _get_language_data(lang)
 

@@ -13,19 +13,13 @@ class FlexiDict:
 
     _trie: FlexiTrie
     _search_engine: SearchEngine
-    _symbol_weights: Optional[Dict[str, float]] = None
 
     def __init__(
         self,
         search_engine: Optional[SearchEngine] = None,
-        symbol_weights: Optional[Dict[str, float]] = None,
     ):
 
         self._trie = FlexiTrie()
-
-        validate_symbol_weights(symbol_weights)
-        self._symbol_weights = symbol_weights
-
         self._search_engine = search_engine or SearchEngine()
 
     def __setitem__(self, keyname: str, value_id: Union[int, str]):
@@ -37,7 +31,7 @@ class FlexiDict:
             value_id (int): The identifier of the value.
 
         """
-        self._trie.add(keyname, value_id, self._symbol_weights)
+        self._trie.add(keyname, value_id, self._search_engine.symbol_weights)
 
     def __getitem__(self, query: str) -> Optional[Union[str, int]]:
         """

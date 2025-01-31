@@ -2464,5 +2464,5 @@ def test_numeral2int_03():
 
 
 def test_convert_numerical_in_text_02():
-    numeral = "пять"
+    numeral = "п'ять"
     assert convert_numerical_in_text(numeral, lang="uk") == '5'

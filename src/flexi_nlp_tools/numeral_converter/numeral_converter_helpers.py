@@ -10,6 +10,7 @@ from .numeral_data_collector.numeral_data_loader.numeral_entry import NumeralEnt
 from .numeral_data_collector.numeral_data_loader.numeral_data import NumeralData
 from .numeral_preprocessor import preprocess_numeral
 
+from .config import MAX_CORRECTION_RATE
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +65,8 @@ def _numeral2number_items(
     number_items: List[NumberItem] = []
 
     for i, number_word in enumerate(reversed(numeral.split())):
-        fuzzy_search_result = flexi_index.get(number_word)
+        fuzzy_search_result = flexi_index.get(number_word, max_correction_rate=MAX_CORRECTION_RATE)
+
         if not fuzzy_search_result:
             raise ValueError(f'Cannot convert "{number_word}" to integer')
 
@@ -88,7 +90,7 @@ def _numeral2number_items(
 
 def __process_word(number_word: str, flexi_index: FlexiDict, numeral_data: NumeralData) -> dict:
     """Helper function to process a single word."""
-    fuzzy_search_result = flexi_index.get(number_word)
+    fuzzy_search_result = flexi_index.get(number_word, max_correction_rate=MAX_CORRECTION_RATE)
     if not fuzzy_search_result:
         raise ValueError(f'Cannot convert "{number_word}" to integer')
 

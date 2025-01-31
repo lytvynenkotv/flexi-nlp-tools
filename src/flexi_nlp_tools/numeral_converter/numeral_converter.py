@@ -56,6 +56,7 @@ def numeral2int(numeral: str, lang: str, multi_threaded: bool = True) -> Optiona
         flexi_index=language_data.flexi_index,
         multi_threaded=multi_threaded
     )
+
     value = _number_items2int(number_items=number_items)
     return value
 

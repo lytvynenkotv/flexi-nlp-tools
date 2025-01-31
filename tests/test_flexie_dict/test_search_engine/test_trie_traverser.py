@@ -7,7 +7,7 @@ from flexi_nlp_tools.flexi_dict import FlexiDict
 
 @pytest.fixture
 def search_engine():
-    return Mock()
+    return Mock(symbol_weights=None)
 
 
 @pytest.fixture
