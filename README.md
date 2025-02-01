@@ -1,7 +1,7 @@
 # flexi-nlp-tools
 
 [![Python Versions](https://img.shields.io/badge/Python%20Versions-%3E%3D3.11-informational)](https://pypi.org/project/nlp-flexi-tools/)
-[![Version](https://img.shields.io/badge/Version-0.5.0-informational)](https://pypi.org/project/nlp-flexi-tools/)
+[![Version](https://img.shields.io/badge/Version-0.5.1-informational)](https://pypi.org/project/nlp-flexi-tools/)
 
 A natural language processing toolkit based on the flexi-dict data structure, designed for efficient fuzzy search, with a focus on simplicity, performance, and flexibility.
 
@@ -300,13 +300,6 @@ pip install flexi-nlp-dict
 ```
 ---
 
-## Demo
-
-Check out the live demo of Flexi NLP Tools here:
-
-[Flexi NLP Tools Demo](https://flexi-nlp-tools-8825f3a8045e.herokuapp.com/)
-
----
 
 ## License
 

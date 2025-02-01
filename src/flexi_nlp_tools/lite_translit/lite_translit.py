@@ -1,19 +1,20 @@
 import re
 
-CONSONANTS = 'BCDFGHKLMNPQRSTVWXZ'
+CONSONANTS_EN = 'BCDFGHKLMNPQRSTVWXZ'
 
 
-REGEX_RULES = [
-    (rf'([{CONSONANTS}][{CONSONANTS}]+)I([{CONSONANTS}]+)', r'\1І\2'),
-    (rf'^([{CONSONANTS}]+)I$', r'\1АЙ'),
-    (rf':::U([{CONSONANTS}][{CONSONANTS}]+)', r'А\1'),
-    (rf':::([{CONSONANTS}])U([{CONSONANTS}][{CONSONANTS}]+)', r'\1А\2'),
+REGEX_RULES_EN2UK = [
+    (rf'([{CONSONANTS_EN}][{CONSONANTS_EN}]+)I([{CONSONANTS_EN}]+)', r'\1І\2'),
+    (rf'^([{CONSONANTS_EN}]+)I$', r'\1АЙ'),
+    (rf':::U([{CONSONANTS_EN}][{CONSONANTS_EN}]+)', r'А\1'),
+    (rf':::([{CONSONANTS_EN}])U([{CONSONANTS_EN}][{CONSONANTS_EN}]+)', r'\1А\2'),
     (r'([CGHMPTF])U', r'\1U'),
     (r':::U', r'Ю'),
+    (r'AH:::', r'А')
 ]
 
 
-STATIC_RULES = {
+STATIC_RULES_EN2UK = {
     'SES:::': 'СЕС',
     'XES:::': 'КСЕС',
     'IES:::': 'АЙС',
@@ -22,7 +23,7 @@ STATIC_RULES = {
     'AY:::': 'АЙ',
     'OY:::': 'ОЙ',
     'Y:::': 'І',
-    'YS:::': 'ЙS',
+    'YS:::': 'ЙС',
     'ES:::': 'С',
     'E:::': '',
     'S:::': 'С',
@@ -46,7 +47,7 @@ STATIC_RULES = {
     "IA": "Я",
     "IO": "ЙО",
     "IE": "Є",
-    "IY": "ІИ",
+    "IY": "ІЙ",
     "II": "ІЙ",
     "YA": "Я",
     "YI": "ИЙ",
@@ -56,6 +57,9 @@ STATIC_RULES = {
     "OO": 'У',
     'EE': 'І',
     'PH': 'Ф',
+    'GH': 'Ж',
+    'CK': 'К',
+    'EA': 'ІА',
     "A": "А",
     "B": "Б",
     "V": "В",
@@ -75,17 +79,31 @@ STATIC_RULES = {
     "T": "Т",
     "U": "У",
     "F": "Ф",
-    "Q": "КЬЮ",
+    "Q": "К’Ю",
     "W": "В",
     "I": "І",
     "H": "Х",
-    "J": "Й",
+    "J": "Ж",
     "X": "КС",
     "C": "К",
 }
 
 
+STATIC_RULES_UK2RU = {
+    'Є': 'Е',
+    'Е': 'Э',
+    'И': 'Ы',
+    'І': 'И',
+    'Ґ': 'Г',
+    'Ї': 'ЙИ',
+    '’': 'Ь'
+}
+
+
 def __preserve_case(word, replacement):
+
+    if not word.isalpha():
+        return replacement.lower()
 
     if word.islower():
         return replacement.lower()
@@ -112,11 +130,28 @@ def en2uk_translit(s: str) -> str:
 
     s_translit = f':::{s}:::'
 
-    for pattern, replacement in REGEX_RULES:
+    for pattern, replacement in REGEX_RULES_EN2UK:
         s_translit = re.sub(pattern, repl, s_translit)
 
-    for k, v in STATIC_RULES.items():
+    for k, v in STATIC_RULES_EN2UK.items():
         pattern = re.compile(re.escape(k), flags=re.IGNORECASE)
         s_translit = pattern.sub(repl_static, s_translit)
 
     return s_translit.replace(':::', '')
+
+
+def uk2ru_translit(s: str) -> str:
+    def repl_static(match):
+        return __preserve_case(match.group(0), v)
+
+    s_translit = s
+    for k, v in STATIC_RULES_UK2RU.items():
+        pattern = re.compile(re.escape(k), flags=re.IGNORECASE)
+        s_translit = pattern.sub(repl_static, s_translit)
+
+    return s_translit
+
+
+def en2ru_translit(s: str) -> str:
+    s_translit = en2uk_translit(s)
+    return uk2ru_translit(s_translit)

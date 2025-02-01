@@ -1,4 +1,4 @@
-from flexi_nlp_tools.lite_translit import en2uk_translit
+from flexi_nlp_tools.lite_translit import en2uk_translit, en2ru_translit, uk2ru_translit
 
 
 def test_en2uk_translit_01() -> None:
@@ -37,6 +37,86 @@ def test_en2uk_translit_02() -> None:
     errors = 0
     for en, translit in data:
         result = en2uk_translit(en)
+        if result != translit:
+            print(f'"{en}": expect "{translit}", got "{result}"')
+            errors += 1
+    assert not errors
+
+
+def test_en2uk_translit_03() -> None:
+    data = [
+        ("borjomi", "боржомі"),
+        ('Lamborghini', 'Ламборжіні'),
+        ('major', 'мажор'),
+        ('journey', 'жоурнеі')
+    ]
+    errors = 0
+    for en, translit in data:
+        result = en2uk_translit(en)
+        if result != translit:
+            print(f'"{en}": expect "{translit}", got "{result}"')
+            errors += 1
+    assert not errors
+
+
+def test_en2uk_translit_04() -> None:
+    data = [
+        ("look", "лук"),
+        ('cock', 'кок'),
+        ('cocktail', 'коктаіл'),
+        ('sock', 'сок')
+    ]
+    errors = 0
+    for en, translit in data:
+        result = en2uk_translit(en)
+        if result != translit:
+            print(f'"{en}": expect "{translit}", got "{result}"')
+            errors += 1
+    assert not errors
+
+
+def test_en2uk_translit_05() -> None:
+    data = [
+        ("witch", "вітч"),
+        ('beach', 'біач'),
+        ('bear', 'біар'),
+        ('march', 'марч'),
+        ('choose', 'чус')
+    ]
+    errors = 0
+    for en, translit in data:
+        result = en2uk_translit(en)
+        if result != translit:
+            print(f'"{en}": expect "{translit}", got "{result}"')
+            errors += 1
+    assert not errors
+
+
+def test_uk2ru_translit_01() -> None:
+    data = [
+        ('мрія', 'мрия'),
+        ('подвір’я', 'подвирья'),
+        ('пір’їнки', 'пирьйинкы'),
+    ]
+    errors = 0
+    for uk, translit in data:
+        result = uk2ru_translit(uk)
+        if result != translit:
+            print(f'"{uk}": expect "{translit}", got "{result}"')
+            errors += 1
+    assert not errors
+
+
+def test_en2ru_translit_03() -> None:
+    data = [
+        ("borjomi", "боржоми"),
+        ('Lamborghini', 'Ламборжини'),
+        ('major', 'мажор'),
+        ('journey', 'жоурнэи')
+    ]
+    errors = 0
+    for en, translit in data:
+        result = en2ru_translit(en)
         if result != translit:
             print(f'"{en}": expect "{translit}", got "{result}"')
             errors += 1
