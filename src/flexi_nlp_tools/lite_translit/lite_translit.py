@@ -10,11 +10,22 @@ REGEX_RULES_EN2UK = [
     (rf':::([{CONSONANTS_EN}])U([{CONSONANTS_EN}][{CONSONANTS_EN}]+)', r'\1А\2'),
     (r'([CGHMPTF])U', r'\1U'),
     (r':::U', r'Ю'),
-    (r'AH:::', r'А')
+    (r'AH:::', r'А'),
 ]
 
 
 STATIC_RULES_EN2UK = {
+    r'TIONS:::': 'ШНС',
+    r'TION:::': 'ШН',
+    r'SIONS:::': 'ЖНС',
+    r'SION:::': 'ЖН',
+    r'CIANS:::': 'ШНС',
+    r'CIAN:::': 'ШН',
+    r'OUGH:::': 'У',
+    r'IGHTS:::': 'АЙТС',
+    r'IGHT:::': 'АЙТ',
+    r'CIOUS:::': 'ШС',
+    r'NCE:::': 'НС',
     'SES:::': 'СЕС',
     'XES:::': 'КСЕС',
     'IES:::': 'АЙС',
@@ -28,6 +39,9 @@ STATIC_RULES_EN2UK = {
     'E:::': '',
     'S:::': 'С',
     'C:::': 'К',
+    ':::WH': 'В',
+    ':::GH': 'Г',
+    ':::SCI': 'САЙ',
     'CE': 'СE',
     'СI': 'СI',
     'СY': 'СY',
@@ -35,8 +49,10 @@ STATIC_RULES_EN2UK = {
     "UI": 'У',
     'UO': 'У',
     'SHCH': 'Щ',
+    'SC': 'Ш',
     'KH': 'Х',
     'TS': 'Ц',
+    'THR': 'ТР',
     'TH': 'С',
     'CC': 'КЦ',
     'CH': 'Ч',
@@ -99,55 +115,65 @@ STATIC_RULES_UK2RU = {
     '’': 'Ь'
 }
 
+REGEX_RULES_EN2UK_PATTERNS = [
+    (re.compile(pattern, flags=re.IGNORECASE), replacement)
+    for pattern, replacement in REGEX_RULES_EN2UK
+]
+
+STATIC_RULES_EN2UK_PATTERNS = {
+    re.compile(pattern, flags=re.IGNORECASE): replacement
+    for pattern, replacement in STATIC_RULES_EN2UK.items()
+}
+
+STATIC_RULES_UK2RU_PATTERNS = {
+    re.compile(pattern, flags=re.IGNORECASE): replacement
+    for pattern, replacement in STATIC_RULES_UK2RU.items()
+}
+
 
 def __preserve_case(word, replacement):
 
-    if not word.isalpha():
-        return replacement.lower()
+    match word:
 
-    if word.islower():
-        return replacement.lower()
+        case _ if not word.isalpha():
+            result = replacement.lower()
+        case _ if word.islower():
+            result = replacement.lower()
+        case _ if word.isupper():
+            result = replacement.upper()
+        case _ if word.istitle():
+            result = replacement.capitalize()
+        case _:
+            result = replacement.lower()
 
-    elif word.isupper():
-        return replacement.upper()
-
-    elif word.istitle():
-        return replacement.capitalize()
-
-    return replacement
+    return rf'{result}'
 
 
 def en2uk_translit(s: str) -> str:
-    def repl(match):
-        result = replacement
-        for i in range(1, len(match.groups()) + 1):
-            group = match.group(i)
-            result = result.replace(f'\\{i}', __preserve_case(group, group))
-        return result
-
-    def repl_static(match):
-        return __preserve_case(match.group(0), v)
 
     s_translit = f':::{s}:::'
 
-    for pattern, replacement in REGEX_RULES_EN2UK:
-        s_translit = re.sub(pattern, repl, s_translit)
+    for pattern, replacement in REGEX_RULES_EN2UK_PATTERNS:
 
-    for k, v in STATIC_RULES_EN2UK.items():
-        pattern = re.compile(re.escape(k), flags=re.IGNORECASE)
-        s_translit = pattern.sub(repl_static, s_translit)
+        s_translit = pattern.sub(
+            lambda match: __preserve_case(
+                match.group(),
+                pattern.sub(replacement, match.group())),
+            s_translit)
+
+    for pattern, replacement in STATIC_RULES_EN2UK_PATTERNS.items():
+        s_translit = pattern.sub(lambda match: __preserve_case(match.group(), replacement), s_translit)
 
     return s_translit.replace(':::', '')
 
 
 def uk2ru_translit(s: str) -> str:
-    def repl_static(match):
-        return __preserve_case(match.group(0), v)
+    def repl_static(match, repl):
+        return __preserve_case(match.group(0), repl)
 
     s_translit = s
-    for k, v in STATIC_RULES_UK2RU.items():
-        pattern = re.compile(re.escape(k), flags=re.IGNORECASE)
-        s_translit = pattern.sub(repl_static, s_translit)
+    for pattern, replacement in STATIC_RULES_UK2RU_PATTERNS.items():
+        s_translit = pattern.sub(lambda x: repl_static(x, replacement), s_translit)
 
     return s_translit
 

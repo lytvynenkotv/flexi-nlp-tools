@@ -1,6 +1,37 @@
 from flexi_nlp_tools.lite_translit import en2uk_translit, en2ru_translit, uk2ru_translit
 
 
+def test_sample():
+    # Легковесная (rule-based) транслитерация с английского на русский/украинский с претензией на фонетическую
+    # учитывает case
+    # учитывает положение en символа в слове для корректной транлитерации ("с" транслитерируется в "c" в зависимости от положения в слове)
+
+    en2uk_translit("coca-cola")
+    # "кока-кола"
+
+    en2uk_translit('science')
+    # 'сайенс'
+
+    en2uk_translit('conscience')
+    # 'коншєнс'
+
+    print(en2uk_translit("lucene"))
+    # лусен
+
+    print(en2uk_translit('Samsung'))
+    # 'Самсунг'
+
+    print(en2ru_translit("borjomi"))
+    # "боржоми"
+
+    print(uk2ru_translit("подвір’я"))
+    # 'подвирья'
+
+
+
+
+
+
 def test_en2uk_translit_01() -> None:
     data = [
         ("iaka prikra situatsiia", "яка прікра сітуація"),
@@ -92,6 +123,35 @@ def test_en2uk_translit_05() -> None:
     assert not errors
 
 
+def test_en2uk_translit_06() -> None:
+    data = [
+        ('invitation', 'інвіташн'),
+        ('collaborations', 'коллаборашнс'),
+        ('vision', 'віжн'),
+        ('musicians', 'мусішнс'),
+        ('through', 'тру'),
+        ('though', 'су'),
+        ('thumb', 'сумб'),
+        ('phone', 'фон'),
+        ('whisper', 'віспер'),
+        ('night', 'найт'),
+        ('science', 'сайенс'),
+        ('conscience', 'коншєнс'),
+        ('conscious', 'консшс'),
+        ('delicious', "делішс"),
+        ('chat', 'чат'),
+        ('chemistry', 'чемістрі'),
+        ('machine', 'мачін'),
+    ]
+    errors = 0
+    for en, translit in data:
+        result = en2uk_translit(en)
+        if result != translit:
+            print(f'"{en}": expect "{translit}", got "{result}"')
+            errors += 1
+    assert not errors
+
+
 def test_uk2ru_translit_01() -> None:
     data = [
         ('мрія', 'мрия'),
@@ -121,3 +181,4 @@ def test_en2ru_translit_03() -> None:
             print(f'"{en}": expect "{translit}", got "{result}"')
             errors += 1
     assert not errors
+

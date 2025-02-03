@@ -1,15 +1,17 @@
 # flexi-nlp-tools
 
 [![Python Versions](https://img.shields.io/badge/Python%20Versions-%3E%3D3.11-informational)](https://pypi.org/project/nlp-flexi-tools/)
-[![Version](https://img.shields.io/badge/Version-0.5.1-informational)](https://pypi.org/project/nlp-flexi-tools/)
+[![Version](https://img.shields.io/badge/Version-0.5.2-informational)](https://pypi.org/project/nlp-flexi-tools/)
 
 A natural language processing toolkit based on the flexi-dict data structure, designed for efficient fuzzy search, with a focus on simplicity, performance, and flexibility.
 
 ## Table of Contents
 
 1. [Tools](#tools)
+    - [FlexiDict](#flexidict)
     - [Numeral Converter](#numeral-converter)
     - [Lite Search](#lite-search)
+    - [Lite Translit](#lite-translit)
 2. [Installation](#installation)
 3. [Demo](#demo)
 4. [License](#license)
@@ -17,6 +19,161 @@ A natural language processing toolkit based on the flexi-dict data structure, de
 ---
 
 ## Tools
+
+### FlexiDict
+
+#### Overview
+**FlexiDict** is a flexible key-value storage structure where multiple values can be associated with a single key, and a single value can be referenced by multiple keys. 
+Additionally, it provides robust search capabilities with error tolerance and correction for typos.
+
+#### Initializing
+
+##### Initializing with default settings
+
+```python
+from flexi_nlp_tools.flexi_dict import FlexiDict
+
+flexi_dict = FlexiDict()
+```
+
+##### Initializing with custom settings
+
+**Define a keyboard layout to calculate symbol distances for better typo handling:**
+
+```python
+from flexi_nlp_tools.flexi_dict.utils import calculate_symbols_distances
+
+symbol_keyboard = """
+1234567890-=
+ qwertyuiop[]\
+ asdfghjkl;'
+  zxcvbnm,./"""
+symbols_distances = calculate_symbols_distances(symbol_keyboards=[symbol_keyboard, ])
+```
+**Analyze a text corpus to compute symbol weights:**
+```python
+from flexi_nlp_tools.flexi_dict.utils import calculate_symbols_weights
+
+corpus = [
+    "apple red delicious",
+    "apple fuji",
+    "apple granny smith",
+    "apple honeycrisp",
+    "apple golden delicious",
+    "apple pink lady"
+]
+symbol_weights = calculate_symbols_weights(corpus)
+```
+
+**Set custom prices for search correction to refine sorting:**
+```python
+from flexi_nlp_tools.flexi_dict.search_engine import SearchEngine
+from flexi_nlp_tools.flexi_dict.search_engine.correction import (
+  SymbolInsertion, 
+  SymbolsTransposition, 
+  SymbolsDeletion, 
+  SymbolSubstitution
+)
+
+corrections = [
+    SymbolInsertion(price=.05),
+    SymbolsTransposition(price=.35),
+    SymbolsDeletion(price=.4),
+    SymbolSubstitution(price=.2)
+]
+
+search_engine = SearchEngine(
+    symbol_weights=symbol_weights,
+    symbols_distances=symbols_distances,
+    corrections=corrections,
+    symbol_insertion=SymbolInsertion(price=0.05)
+)
+```
+
+**Initialize FlexiDict with custom settings**:
+```python
+flexi_dict = FlexiDict(search_engine = search_engine)
+```
+
+#### Core Functions
+
+##### `flexi_dict.__getitem__(key)`
+Retrieves the best-matching key with error and typo tolerance.
+
+- **Parameters**:
+  - `key` (*str*): The input key to search.
+
+- **Returns**:
+  - The best-matching key (*str*) if found, otherwise `None`.
+
+- **Example**:
+
+```python
+flexi_dict["apple fuji"]
+# Output: 'apple fuji'
+
+flexi_dict["aplle fyjj"]
+# Output: 'apple fuji'
+
+flexi_dict["eplle fji"]
+# Output: 'apple fuji'
+
+flexi_dict["coffe"]
+# Output: None
+```
+
+##### `flexi_dict.get(key)`
+Performs a key search with error and typo tolerance.
+
+- **Parameters**:
+  - `key` (*str*): The input key to search.
+
+- **Returns**:
+  - A list of matching keys (*list[str]*) or an empty list if no matches are found.
+
+- **Example**:
+
+```python
+flexi_dict.get("apple fuji")
+# Output: ['apple fuji']
+
+flexi_dict.get("aplle fyjj")
+# Output: ['apple fuji']
+
+flexi_dict.get("eplle fji")
+# Output: ['apple fuji']
+
+flexi_dict.get("coffe")
+# Output: []
+```
+
+##### `flexi_dict.search(query)`
+Finds all matching keys based on the given query, supporting partial matches and typo tolerance.
+
+- **Parameters**:
+  - `query` (*str*): The input query string to search for relevant keys.
+
+- **Returns**:
+  - A list of matching keys (*list[str]*) sorted by relevance.
+
+- **Example**:
+
+```python
+flexi_dict.search("apple")
+# Output: ['apple fuji', 'apple pink lady', 'apple honeycrisp', 'apple granny smith', 'apple red delicious', 'apple golden delicious']
+
+flexi_dict.search("aplle")
+# Output: ['apple fuji', 'apple pink lady', 'apple honeycrisp', 'apple granny smith', 'apple red delicious', 'apple golden delicious']
+
+flexi_dict.search("apl")
+# Output: ['apple fuji', 'apple pink lady', 'apple honeycrisp', 'apple granny smith', 'apple red delicious', 'apple golden delicious']
+
+flexi_dict.search("apple hon")
+# Output: ['apple honeycrisp', 'apple fuji', 'apple pink lady', 'apple granny smith', 'apple red delicious', 'apple golden delicious']
+```
+
+---
+
 ### Numeral Converter
 
 #### Overview
@@ -264,6 +421,75 @@ for match in result:
   print(match)
 ```
 
+---
+
+### Lite Translit
+
+`lite_translit` is a lightweight rule-based transliteration tool for converting text between English, Ukrainian, and Russian. 
+It approximates phonetic pronunciation, considers letter case, and adapts transliteration based on letter position in a word.
+
+
+#### Core Functions
+
+##### `en2uk_translit(text)`
+Transliterates English text into Ukrainian, preserving phonetic accuracy and considering letter positions.
+
+- **Parameters**:
+  - `text` (*str*): The input English text to transliterate.
+
+- **Returns**:
+  - A Ukrainian transliterated string (*str*).
+
+- **Example**:
+
+```python
+en2uk_translit("coca-cola")
+# Output: "кока-кола"
+
+en2uk_translit("science")
+# Output: "сайенс"
+
+en2uk_translit("conscience")
+# Output: "коншєнс"
+
+en2uk_translit("lucene")
+# Output: "лусен"
+
+en2uk_translit("Samsung")
+# Output: "Самсунг"
+```
+
+##### `en2ru_translit(text)`
+Transliterates English text into Russian, preserving phonetic accuracy.
+
+- **Parameters**:
+  - `text` (*str*): The input English text to transliterate.
+
+- **Returns**:
+  - A Russian transliterated string (*str*).
+
+- **Example**:
+
+```python
+en2ru_translit("borjomi")
+# Output: "боржоми"
+```
+
+##### `uk2ru_translit(text)`
+Transliterates Ukrainian text into Russian while maintaining phonetic consistency.
+
+- **Parameters**:
+  - `text` (*str*): The input Ukrainian text to transliterate.
+
+- **Returns**:
+  - A Russian transliterated string (*str*).
+
+- **Example**:
+
+```python
+uk2ru_translit("подвір’я")
+# Output: "подвирья"
+```
 
 ---
 
@@ -289,6 +515,9 @@ Default values are used when the variables are not explicitly set.
 - **`MIN_START_TOKEN_LENGTH`** (default: `3`): A positive integer defining the minimum length of a starting token. Must be greater than `0`.
 - **`DEFAULT_QUERY_TRANSFORMATION_PRICE`** (default: `0.4`): A float in the range `[0, ∞)`, representing the cost of a query transformation. Must be non-negative.
 
+### NumeralConverter environment variables
+- **`MAX_NUMERAL_LENGTH`** (default: `2048`): max numeral string length to process.
+
 ---
 
 ## Installation
@@ -300,6 +529,13 @@ pip install flexi-nlp-dict
 ```
 ---
 
+## Demo
+
+Check out the live demo of Flexi NLP Tools here:
+
+[Flexi NLP Tools Demo](https://flexi-nlp-tools.fly.dev/)
+
+---
 
 ## License
 

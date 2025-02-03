@@ -427,3 +427,57 @@ def test_save_load(search_engine_for_getitem, tmp_path):
 def test_optional_init():
     flexi_dict = FlexiDict()
     assert isinstance(flexi_dict, FlexiDict)
+
+
+def test_sample():
+
+    symbol_keyboard = """
+1234567890-=
+ qwertyuiop[]\
+ asdfghjkl;'
+  zxcvbnm,./"""
+
+    corpus = [
+        "apple red delicious",
+        "apple fuji",
+        "apple granny smith",
+        "apple honeycrisp",
+        "apple golden delicious",
+        "apple pink lady"
+    ]
+    symbol_weights = calculate_symbols_weights(corpus)
+    symbols_distances = calculate_symbols_distances(symbol_keyboards=[symbol_keyboard, ])
+
+    search_engine = SearchEngine(
+        symbol_weights=symbol_weights,
+        symbols_distances=symbols_distances,
+        symbol_insertion=SymbolInsertion())
+    d = FlexiDict(search_engine=search_engine)
+
+    for x in corpus:
+        d[x] = x
+
+    assert d.get("apple fuji") == ['apple fuji', ]
+
+    assert d.get("aplle fyjj")[0] == 'apple fuji'
+
+    assert d.get("eplle fji") == ['apple fuji', ]
+
+    assert d.get("coffe") == []
+
+    assert d["coffe"] is None
+
+    search_engine = SearchEngine(
+        symbol_weights=symbol_weights,
+        symbols_distances=symbols_distances,
+        symbol_insertion=SymbolInsertion(price=.05))
+    d = FlexiDict(search_engine=search_engine)
+    for x in corpus:
+        d[x] = x
+
+    assert len(d.search("apple")) == 6
+    assert len(d.search("aplle")) == 6
+    assert len(d.search("apl")) == 6
+
+    assert len(d.search("apple hon")) > 0
+    assert d.search("apple hon")[0] == 'apple honeycrisp'

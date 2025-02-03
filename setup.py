@@ -2,14 +2,19 @@ from setuptools import setup, find_packages
 
 setup(
     name="flexi-nlp-tools",
-    version="0.5.1",
+    version="0.5.2",
     description="NLP toolkit based on the flexi-dict data structure, designed for efficient fuzzy search, with a focus on simplicity, performance, and flexibility.",
     author="Tetiana Lytvynenko",
     author_email="lytvynenkotv@gmail.com",
     license="MIT",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    keywords=["fuzzy search", "nlp tools", "flexi search", "numeral converter"],
+    keywords=[
+        "fuzzy search", "flexi search", "nlp tools", "natural language processing",
+        "text processing", "string matching", "phonetic matching", "language tools",
+        "transliteration", "transliterator", "text conversion", "numeral converter",
+        "text normalization", "linguistic tools", "rule-based transliteration"
+    ],
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     include_package_data=True,
