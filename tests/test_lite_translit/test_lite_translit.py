@@ -28,19 +28,16 @@ def test_sample():
     # 'подвирья'
 
 
-
-
-
-
 def test_en2uk_translit_01() -> None:
     data = [
         ("iaka prikra situatsiia", "яка прікра сітуація"),
-        ("ia duzje rozcharovanii", "я дуже розчарованій"),
-        ("otse tak neshchastia", "оце так нещастя"),
+        ("ia duzjeh rozcharovanii", "я дуже розчарованій"),
+        ("otseh tak neshchastia", "оце так нещастя"),
         ("просто текст українською мовою", "просто текст українською мовою"),
         (
-            'Transliteruvati text mozjna po riznomu, ale ie intuitivni pravila',
+            'Transliteruvati text mozjna po riznomu, aleh ieh intuitivni pravila',
             'Транслітеруваті текст можна по різному, але є інтутівні правіла'
+
         )
     ]
     errors = 0
@@ -142,6 +139,19 @@ def test_en2uk_translit_06() -> None:
         ('chat', 'чат'),
         ('chemistry', 'чемістрі'),
         ('machine', 'мачін'),
+    ]
+    errors = 0
+    for en, translit in data:
+        result = en2uk_translit(en)
+        if result != translit:
+            print(f'"{en}": expect "{translit}", got "{result}"')
+            errors += 1
+    assert not errors
+
+
+def test_en2uk_translit_07() -> None:
+    data = [
+        ('the invitation and collaborations', 'сі інвіташн анд коллаборашнс'),
     ]
     errors = 0
     for en, translit in data:

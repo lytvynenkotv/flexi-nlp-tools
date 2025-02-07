@@ -10,7 +10,8 @@ REGEX_RULES_EN2UK = [
     (rf':::([{CONSONANTS_EN}])U([{CONSONANTS_EN}][{CONSONANTS_EN}]+)', r'\1А\2'),
     (r'([CGHMPTF])U', r'\1U'),
     (r':::U', r'Ю'),
-    (r'AH:::', r'А'),
+    (r'([AE])H:::', r'\1'),
+    (rf':::([{CONSONANTS_EN}]+)E:::', r'\1І'),
 ]
 
 
@@ -150,8 +151,7 @@ def __preserve_case(word, replacement):
 
 
 def en2uk_translit(s: str) -> str:
-
-    s_translit = f':::{s}:::'
+    s_translit = ':::' + re.sub(r'\s+', '::: :::', s) + ':::'
 
     for pattern, replacement in REGEX_RULES_EN2UK_PATTERNS:
 
@@ -164,7 +164,7 @@ def en2uk_translit(s: str) -> str:
     for pattern, replacement in STATIC_RULES_EN2UK_PATTERNS.items():
         s_translit = pattern.sub(lambda match: __preserve_case(match.group(), replacement), s_translit)
 
-    return s_translit.replace(':::', '')
+    return s_translit.replace(':::', '').strip()
 
 
 def uk2ru_translit(s: str) -> str:
