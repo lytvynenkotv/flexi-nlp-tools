@@ -55,10 +55,10 @@ def test_en2uk_translit_02() -> None:
         ('alpro', 'алпро'),
         ('columbiia', 'колумбія'),
         ('Samsung', 'Самсунг'),
-        ('YARO Veggie cheese', 'ЯРО Веггє чіс'),
+        ('YARO Veggie cheese', 'ЯРО Веггі чіс'),
         ('Coca-Cola', 'Кока-Кола'),
-        ('iPhone 14 Pro', 'іФоне 14 Про'),
-        ('Samsung Galaxy S23+', 'Самсунг Галаксай С23+'),
+        ('iPhone 14 Pro', 'іФон 14 Про'),
+        ('Samsung Galaxy S23+', 'Самсунг Галаксі С23+'),
         ('HOKKAIDO CLUB', 'ХОККАІДО КЛУБ'),
         ('sonatural', 'сонатурал')
     ]
