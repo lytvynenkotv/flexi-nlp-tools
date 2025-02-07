@@ -1,33 +1,5 @@
 from flexi_nlp_tools.lite_translit import en2uk_translit, en2ru_translit, uk2ru_translit
 
-
-def test_sample():
-    # Легковесная (rule-based) транслитерация с английского на русский/украинский с претензией на фонетическую
-    # учитывает case
-    # учитывает положение en символа в слове для корректной транлитерации ("с" транслитерируется в "c" в зависимости от положения в слове)
-
-    en2uk_translit("coca-cola")
-    # "кока-кола"
-
-    en2uk_translit('science')
-    # 'сайенс'
-
-    en2uk_translit('conscience')
-    # 'коншєнс'
-
-    print(en2uk_translit("lucene"))
-    # лусен
-
-    print(en2uk_translit('Samsung'))
-    # 'Самсунг'
-
-    print(en2ru_translit("borjomi"))
-    # "боржоми"
-
-    print(uk2ru_translit("подвір’я"))
-    # 'подвирья'
-
-
 def test_en2uk_translit_01() -> None:
     data = [
         ("iaka prikra situatsiia", "яка прікра сітуація"),
