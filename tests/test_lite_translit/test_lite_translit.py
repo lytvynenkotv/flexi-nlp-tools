@@ -1,6 +1,14 @@
 from flexi_nlp_tools.lite_translit import en2uk_translit, en2ru_translit, uk2ru_translit
 
 
+def test_en2uk_translit_empty() -> None:
+    assert en2uk_translit(None) == ''
+
+
+def test_en2uk_translit_only_symb() -> None:
+    assert en2uk_translit('!') == '!'
+
+
 def test_en2uk_translit_01() -> None:
     data = [
         ("iaka prikra situatsiia", "яка прікра сітуація"),
