@@ -1,5 +1,4 @@
-from typing import Dict, List, Optional, Union
-import dill
+from typing import List, Optional, Union
 
 from .config import MAX_CORRECTION_RATE_FOR_SEARCH
 
@@ -109,11 +108,3 @@ class FlexiDict:
     @property
     def trie(self):
         return self._trie
-
-    def save_trie(self, filename: str):
-        with open(filename, "wb") as f:
-            dill.dump(file=f, obj=self._trie, recurse=True)
-
-    def load_trie(self, filename: str) -> None:
-        with open(filename, "rb") as f:
-            self._trie = dill.load(file=f)

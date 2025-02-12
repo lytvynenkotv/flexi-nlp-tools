@@ -410,20 +410,6 @@ def test_search_02():
     assert d.search("larry")[0] == 2
 
 
-def test_save_load(search_engine_for_getitem, tmp_path):
-    d = FlexiDict(search_engine_for_getitem)
-
-    d["first"] = 1
-    d["second"] = 2
-    d["third"] = 3
-
-    d.save_trie(tmp_path / 'trie.bin')
-
-    d_loaded = FlexiDict(search_engine_for_getitem)
-    d_loaded.load_trie(tmp_path / 'trie.bin')
-    assert d_loaded["first"] == 1
-
-
 def test_optional_init():
     flexi_dict = FlexiDict()
     assert isinstance(flexi_dict, FlexiDict)

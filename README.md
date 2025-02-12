@@ -1,7 +1,7 @@
 # flexi-nlp-tools
 
 [![Python Versions](https://img.shields.io/badge/Python%20Versions-%3E%3D3.11-informational)](https://pypi.org/project/nlp-flexi-tools/)
-[![Version](https://img.shields.io/badge/Version-0.5.3-informational)](https://pypi.org/project/nlp-flexi-tools/)
+[![Version](https://img.shields.io/badge/Version-0.5.4-informational)](https://pypi.org/project/nlp-flexi-tools/)
 
 A natural language processing toolkit based on the flexi-dict data structure, designed for efficient fuzzy search, with a focus on simplicity, performance, and flexibility.
 
@@ -443,20 +443,18 @@ Transliterates English text into Ukrainian, preserving phonetic accuracy and con
 - **Example**:
 
 ```python
-en2uk_translit("coca-cola")
-# Output: "кока-кола"
+en2uk_translit("Tempus fugit... carpe diem!")
+# Output: "Темпус фугіт... карп дєм!"
 
-en2uk_translit("science")
-# Output: "сайенс"
+en2uk_translit("Veni, vidi, vici!")
+# Output: "Вені, віді, вічі!"
 
-en2uk_translit("conscience")
-# Output: "коншєнс"
+en2uk_translit(
+  "His conscience was clear, even as he tried to maintain the consistency of his work "
+  "on the Lucene project for Samsung, while sipping a cold cola.")
+# Output: "Хіс коншєнс вас кліар, евен ас хі трєд то маінтаін сі консістенкі оф хіс ворк "
+#         "он сі Лусен прожечт фор Самсунг, віл сіппінг а колд кола."
 
-en2uk_translit("lucene")
-# Output: "лусен"
-
-en2uk_translit("Samsung")
-# Output: "Самсунг"
 ```
 
 ##### `en2ru_translit(text)`
@@ -471,8 +469,14 @@ Transliterates English text into Russian, preserving phonetic accuracy.
 - **Example**:
 
 ```python
-en2ru_translit("borjomi")
-# Output: "боржоми"
+en2ru_translit(
+  "After a long day, he enjoyed a refreshing Borjomi and Coca-Cola, "
+  "feeling victorious like Vici in battle, while watching "
+  "the lively citrus circus under the bright lights.")
+# Output: "Афтер а лонг дай, хи енжоед а рефрешинг Боржоми анд Кока-Кола, "
+#         "филинг вичторйоус лик Вичи ин баттл, вил ватчинг "
+#         "си ливели китрус киркус андер си брижт лайтс."
+
 ```
 
 ##### `uk2ru_translit(text)`
@@ -487,11 +491,12 @@ Transliterates Ukrainian text into Russian while maintaining phonetic consistenc
 - **Example**:
 
 ```python
-uk2ru_translit("подвір’я")
-# Output: "подвирья"
+uk2ru_translit("У мрії вона вирушила на подвір’я, де вітер розносив пір’їнки, і все навколо стало казкою.")
+# Output: "У мрийи вона вырушыла на подвирья, де витер розносыв пирьйинкы, и все навколо стало казкою."
 ```
 
 ---
+
 
 ## Environment Variables
 

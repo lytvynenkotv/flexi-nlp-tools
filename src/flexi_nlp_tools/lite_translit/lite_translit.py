@@ -1,5 +1,8 @@
 import re
 
+from .tokenizer import tokenize, detokenize
+
+
 CONSONANTS_EN = 'BCDFGHKLMNPQRSTVWXZ'
 
 
@@ -12,6 +15,8 @@ REGEX_RULES_EN2UK = [
     (r':::U', r'Ю'),
     (r'([AE])H:::', r'\1'),
     (rf':::([{CONSONANTS_EN}]+)E:::', r'\1І'),
+    ('IE:::', 'АЙ'),
+    ('([IE])C', r'\1Ч'),
 ]
 
 
@@ -84,7 +89,7 @@ STATIC_RULES_EN2UK = {
     "D": "Д",
     "E": "Е",
     "Z": "З",
-    "Y": "АЙ",
+    "Y": "У",
     "K": "К",
     "L": "Л",
     "M": "М",
@@ -103,17 +108,20 @@ STATIC_RULES_EN2UK = {
     "J": "Ж",
     "X": "КС",
     "C": "К",
+    '’': 'Ь',
+    '`': 'Ь'
 }
 
 
 STATIC_RULES_UK2RU = {
     'Є': 'Е',
-    'Е': 'Э',
+    'Е': 'Е',
     'И': 'Ы',
     'І': 'И',
     'Ґ': 'Г',
     'Ї': 'ЙИ',
-    '’': 'Ь'
+    '’': 'Ь',
+    '`': 'Ь'
 }
 
 REGEX_RULES_EN2UK_PATTERNS = [
@@ -130,6 +138,25 @@ STATIC_RULES_UK2RU_PATTERNS = {
     re.compile(pattern, flags=re.IGNORECASE): replacement
     for pattern, replacement in STATIC_RULES_UK2RU.items()
 }
+
+
+def en2uk_translit(s: str) -> str:
+    tokens, sub = tokenize(s)
+    tokens_translit = [_en2uk_translit(token) for token in tokens]
+    s_translit = detokenize(tokens_translit, sub)
+    return s_translit
+
+
+def uk2ru_translit(s: str) -> str:
+    tokens, sub = tokenize(s)
+    tokens_translit = [_uk2ru_translit(token) for token in tokens]
+    s_translit = detokenize(tokens_translit, sub)
+    return s_translit
+
+
+def en2ru_translit(s: str) -> str:
+    s_translit = en2uk_translit(s)
+    return uk2ru_translit(s_translit)
 
 
 def __preserve_case(word, replacement):
@@ -150,11 +177,10 @@ def __preserve_case(word, replacement):
     return rf'{result}'
 
 
-def en2uk_translit(s: str) -> str:
-    s_translit = ':::' + re.sub(r'\s+', '::: :::', s) + ':::'
+def _en2uk_translit(token: str) -> str:
+    s_translit = ':::' + token + ':::'
 
     for pattern, replacement in REGEX_RULES_EN2UK_PATTERNS:
-
         s_translit = pattern.sub(
             lambda match: __preserve_case(
                 match.group(),
@@ -167,17 +193,12 @@ def en2uk_translit(s: str) -> str:
     return s_translit.replace(':::', '').strip()
 
 
-def uk2ru_translit(s: str) -> str:
+def _uk2ru_translit(token: str) -> str:
     def repl_static(match, repl):
         return __preserve_case(match.group(0), repl)
 
-    s_translit = s
+    s_translit = token
     for pattern, replacement in STATIC_RULES_UK2RU_PATTERNS.items():
         s_translit = pattern.sub(lambda x: repl_static(x, replacement), s_translit)
 
     return s_translit
-
-
-def en2ru_translit(s: str) -> str:
-    s_translit = en2uk_translit(s)
-    return uk2ru_translit(s_translit)
