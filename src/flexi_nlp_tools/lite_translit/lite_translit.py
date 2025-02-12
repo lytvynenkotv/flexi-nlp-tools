@@ -16,6 +16,8 @@ REGEX_RULES_EN2UK = [
     (r'([AE])H:::', r'\1'),
     (rf':::([{CONSONANTS_EN}]+)E:::', r'\1І'),
     ('IE:::', 'АЙ'),
+    ('([IE])CIAN', r'\1ШН'),
+    ('([IE])CIOU', r'\1Ш'),
     ('([IE])C', r'\1Ч'),
 ]
 

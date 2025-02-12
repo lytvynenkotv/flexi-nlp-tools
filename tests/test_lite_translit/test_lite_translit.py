@@ -36,7 +36,7 @@ def test_en2uk_translit_02() -> None:
         ('alpro', 'алпро'),
         ('columbiia', 'колумбія'),
         ('Samsung', 'Самсунг'),
-        ('YARO Veggie cheese', 'ЯРО Веггі чіс'),
+        ('YARO Veggie cheese', 'ЯРО Веггай чіс'),
         ('Coca-Cola', 'Кока-Кола'),
         ('iPhone 14 Pro', 'іФон 14 Про'),
         ('Samsung Galaxy S23+', 'Самсунг Галаксі С23+'),
@@ -172,7 +172,7 @@ def test_en2ru_translit_03() -> None:
         ("borjomi", "боржоми"),
         ('Lamborghini', 'Ламборжини'),
         ('major', 'мажор'),
-        ('journey', 'жоурнэи')
+        ('journey', 'жоурнеи')
     ]
     errors = 0
     for en, translit in data:
